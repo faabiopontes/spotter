@@ -1,5 +1,5 @@
 {
-  "name": "blaze",
+  "name": "spotter",
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
@@ -13,8 +13,8 @@
     "web-push": "^3.4.4"
   },
   "scripts": {
-    "start": "node index.js",
-    "pusher": "node pusher.js",
-    "mysql": "node db.js"
+    "start": "node index",
+    "pusher": "node pusher",
+    "mysql": "node db"
   }
 }
