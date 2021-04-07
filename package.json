@@ -13,7 +13,7 @@
     "web-push": "^3.4.4"
   },
   "scripts": {
-    "start": "yarn && node index",
+    "start": "rm -f package-lock.json && yarn && node index",
     "pusher": "node pusher",
     "mysql": "node db"
   }
