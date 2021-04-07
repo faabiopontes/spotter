@@ -14,9 +14,14 @@ const roulette = {
   loadInterval: async (start, end) => {
     let rouletteId;
     for (rouletteId = end; rouletteId >= start; rouletteId--) {
-      const blazeResponse = await blaze_api.getRouletteById(rouletteId);
-      const { id, color, created_at } = blazeResponse;
-      await roulette.insert(id, color, created_at);
+      try {
+        const blazeResponse = await blaze_api.getRouletteById(rouletteId);
+        const { id, color, created_at } = blazeResponse;
+        await roulette.insert(id, color, created_at);
+      } catch (err) {
+        console.error("Erro em roulette.loadInterval");
+        console.error(err);
+      }
     }
   },
   loadLastPages: async () => {
