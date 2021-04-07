@@ -26,9 +26,17 @@ const roulette = require("./roulette");
 
 http.listen(port, async () => {
   console.log(`listening on *:${port}`);
+
   await roulette.loadLastPages();
-  await roulette.loadMissingIds();
+  roulette.loadMissingIds();
 });
+
+setInterval(async () => {
+  const inserted = await roulette.loadLastPages();
+  if (inserted > 0) {
+    console.log(`setInterval: Registros inseridos: ${inserted}`);
+  }
+}, 10000);
 
 app.get("/loadLastPages", async (req, res) => {
   try {

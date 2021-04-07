@@ -25,6 +25,7 @@ const roulette = {
     }
   },
   loadLastPages: async () => {
+    let inserted = 0;
     for (let page = 1; page <= 10; page++) {
       const blazeResponse = await blaze_api.getRouletteHistory(page);
       let ids = [];
@@ -38,12 +39,15 @@ const roulette = {
       for (const history of pendingHistory) {
         const { id, color, created_at } = history;
         await roulette.insert(id, color, created_at);
+        inserted++;
       }
 
       if (pendingHistory.length < 8) {
         break;
       }
     }
+    
+    return inserted;
   },
   getMissingIdsIntervals: async () => {
     const conn = await db.connect();
