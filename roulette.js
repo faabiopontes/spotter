@@ -69,7 +69,6 @@ const roulette = {
       HAVING gap_ends_at IS NOT NULL
     `);
 
-    rows.pop();
     return rows;
   },
   getLastSavedId: async () => {
