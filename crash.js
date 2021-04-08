@@ -55,7 +55,7 @@ const crash = {
       }
     }
 
-    roulette.lastSavedId = lastSavedId;
+    crash.lastSavedId = lastSavedId;
 
     return inserted;
   },
