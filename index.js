@@ -38,7 +38,7 @@ setInterval(async () => {
   try {
     const inserted = await roulette.loadLastPages();
     if (inserted > 0) {
-      console.log(`setInterval: Inserted records: ${inserted}`);
+      console.log(`setInterval:roulette: Inserted records: ${inserted}`);
     }
   } catch (err) {
     console.error("Error at roulette setInterval");
@@ -50,7 +50,7 @@ setInterval(async () => {
   try {
     const inserted = await crash.loadLastPages();
     if (inserted > 0) {
-      console.log(`setInterval: Inserted records: ${inserted}`);
+      console.log(`setInterval:crash: Inserted records: ${inserted}`);
     }
   } catch (err) {
     console.error("Error at crash setInterval");
