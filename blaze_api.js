@@ -44,7 +44,8 @@ const blaze_api = {
     const response = await fetch(
       `https://api-v2.blaze.com/crash_games/recent/history?page=${page}`
     );
-    return blaze_api.parseResponse(response).records;
+    const json = await blaze_api.parseResponse(response);
+    return json.records;
   },
   getCrashById: async (id) => {
     const response = await fetch(`https://api-v2.blaze.com/crash_games/${id}`);

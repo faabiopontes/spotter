@@ -23,32 +23,59 @@ io.on("connection", (socket) => {
 
 const port = process.env.PORT || 3000;
 const roulette = require("./roulette");
+const crash = require("./crash");
 
 http.listen(port, async () => {
-  console.log(`listening on *:${port}`);
+  console.log(`Listening on *:${port}`);
 
   await roulette.loadLastPages();
+  await crash.loadLastPages();
   roulette.loadMissingIds();
+  crash.loadMissingIds();
 });
 
 setInterval(async () => {
-  const inserted = await roulette.loadLastPages();
-  if (inserted > 0) {
-    console.log(`setInterval: Registros inseridos: ${inserted}`);
+  try {
+    const inserted = await roulette.loadLastPages();
+    if (inserted > 0) {
+      console.log(`setInterval: Inserted records: ${inserted}`);
+    }
+  } catch (err) {
+    console.error("Error at roulette setInterval");
+    console.log(err);
   }
 }, 10000);
 
+setInterval(async () => {
+  try {
+    const inserted = await crash.loadLastPages();
+    if (inserted > 0) {
+      console.log(`setInterval: Inserted records: ${inserted}`);
+    }
+  } catch (err) {
+    console.error("Error at crash setInterval");
+    console.log(err);
+  }
+}, 5001);
+
 app.get("/loadLastPages", async (req, res) => {
   try {
-    res.send("Últimas 10 páginas inseridas com sucesso");
+    res.send("Last 10 pages successfully added");
   } catch (err) {
     res.send(err);
   }
 });
 
-app.get("/loadInterval", async (req, res) => {
+app.get("/roulette/loadInterval", async (req, res) => {
   const { start, end } = req.query;
-  await roulette.loadInterval();
+  roulette.loadInterval(start, end);
+  res.send(`Inserting records between ${start} and ${end}`);
+});
+
+app.get("/crash/loadInterval", async (req, res) => {
+  const { start, end } = req.query;
+  crash.loadInterval(start, end);
+  res.send(`Inserting records between ${start} and ${end}`);
 });
 
 // let counter = 0;

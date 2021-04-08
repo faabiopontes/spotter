@@ -1,25 +1,25 @@
 const blaze_api = require("./blaze_api");
 const db = require("./db");
 
-const roulette = {
+const crash = {
   loadMissingIds: async () => {
-    const missingIdsIntervals = await roulette.getMissingIdsIntervals();
+    const missingIdsIntervals = await crash.getMissingIdsIntervals();
     missingIdsIntervals.reverse();
 
     for (const missingIdsInterval of missingIdsIntervals) {
       const { gap_starts_at, gap_ends_at } = missingIdsInterval;
-      await roulette.loadInterval(gap_starts_at, gap_ends_at);
+      await crash.loadInterval(gap_starts_at, gap_ends_at);
     }
   },
   loadInterval: async (start, end) => {
-    let rouletteId;
-    for (rouletteId = end; rouletteId >= start; rouletteId--) {
+    let crashId;
+    for (crashId = end; crashId >= start; crashId--) {
       try {
-        const blazeResponse = await blaze_api.getRouletteById(rouletteId);
-        const { id, color, created_at } = blazeResponse;
-        await roulette.insert(id, color, created_at);
+        const blazeResponse = await blaze_api.getCrashById(crashId);
+        const { id, crash_point, created_at } = blazeResponse;
+        await crash.insert(id, crash_point, created_at);
       } catch (err) {
-        console.error("Erro em roulette.loadInterval");
+        console.error("Error at: crash.loadInterval");
         console.error(err);
       }
     }
@@ -27,18 +27,18 @@ const roulette = {
   loadLastPages: async () => {
     let inserted = 0;
     for (let page = 1; page <= 10; page++) {
-      const blazeResponse = await blaze_api.getRouletteHistory(page);
+      const blazeResponse = await blaze_api.getCrashHistory(page);
       let ids = [];
 
       blazeResponse.forEach((row) => ids.push(row.id));
-      const pendingIds = await roulette.getPendingIds(ids);
+      const pendingIds = await crash.getPendingIds(ids);
       const pendingHistory = blazeResponse.filter(
         (history) => pendingIds.indexOf(history.id) !== -1
       );
 
       for (const history of pendingHistory) {
-        const { id, color, created_at } = history;
-        await roulette.insert(id, color, created_at);
+        const { id, crash_point, created_at } = history;
+        await crash.insert(id, crash_point, created_at);
         inserted++;
       }
 
@@ -56,14 +56,14 @@ const roulette = {
         (t1.id + 1) AS gap_starts_at,
         (
           SELECT MIN(t3.id) - 1
-          FROM roulette_history t3
+          FROM crash_history t3
           WHERE t3.id > t1.id
         ) AS gap_ends_at
-      FROM roulette_history t1
+      FROM crash_history t1
       WHERE
         NOT EXISTS (
           SELECT t2.id
-          FROM roulette_history t2
+          FROM crash_history t2
           WHERE t2.id = t1.id + 1
         )
       HAVING gap_ends_at IS NOT NULL
@@ -75,7 +75,7 @@ const roulette = {
     const conn = await db.connect();
     const [rows] = await conn.query(`
       SELECT MAX(id) as lastSavedId
-      FROM roulette_history
+      FROM crash_history
     `);
     const { lastSavedId } = rows[0];
 
@@ -85,7 +85,7 @@ const roulette = {
     const conn = await db.connect();
     const [rows] = await conn.query(`
       SELECT id
-      FROM roulette_history
+      FROM crash_history
       WHERE id in (${ids.join()})
     `);
     const existingIds = rows.map((row) => row.id);
@@ -96,15 +96,15 @@ const roulette = {
     const date = new Date(createdAt);
     return date.valueOf() / 1000;
   },
-  insert: async (id, color, createdAt) => {
-    const unixCreatedAt = roulette.parseCreatedAtToUnixTime(createdAt);
+  insert: async (id, crash_point, createdAt) => {
+    const unixCreatedAt = crash.parseCreatedAtToUnixTime(createdAt);
 
     const conn = await db.connect();
     await conn.query(
       `
-        INSERT INTO roulette_history(
+        INSERT INTO crash_history(
           id,
-          color,
+          crash_point,
           created_at
         ) VALUES (
           ?,
@@ -112,10 +112,10 @@ const roulette = {
           FROM_UNIXTIME(?)
         )
       `,
-      [id, color, unixCreatedAt]
+      [id, crash_point, unixCreatedAt]
     );
-    console.log(`Inserted (${id}, ${color}, ${unixCreatedAt}) into DB`);
+    console.log(`Inserted (${id}, ${crash_point}, ${unixCreatedAt}) into DB`);
   },
 };
 
-module.exports = roulette;
+module.exports = crash;
