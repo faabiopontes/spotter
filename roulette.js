@@ -2,6 +2,7 @@ const blaze_api = require("./blaze_api");
 const db = require("./db");
 
 const roulette = {
+  lastSavedId: 0,
   loadMissingIds: async () => {
     const missingIdsIntervals = await roulette.getMissingIdsIntervals();
     missingIdsIntervals.reverse();
@@ -26,6 +27,8 @@ const roulette = {
   },
   loadLastPages: async () => {
     let inserted = 0;
+    let lastSavedId = 0;
+
     for (let page = 1; page <= 10; page++) {
       const blazeResponse = await blaze_api.getRouletteHistory(page);
       let ids = [];
@@ -39,6 +42,11 @@ const roulette = {
       for (const history of pendingHistory) {
         const { id, color, created_at } = history;
         await roulette.insert(id, color, created_at);
+
+        if (lastSavedId == 0) {
+          lastSavedId = id;
+        }
+
         inserted++;
       }
 
@@ -46,6 +54,8 @@ const roulette = {
         break;
       }
     }
+
+    roulette.lastSavedId = lastSavedId;
     
     return inserted;
   },
