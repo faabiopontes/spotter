@@ -48,17 +48,25 @@ app.post("/crash/insert", async (req, res) => {
   res.send("ok");
 });
 
+setTimeout(async () => {
+  const response = await crash.loadRecent();
+  console.log({ response });
+}, 1000);
+
+setTimeout(async () => {
+    const response = await roulette.loadRecent();
+    console.log({ response });
+}, 11000);
+
 setInterval(async () => {
   const response = await roulette.loadRecent();
   console.log({ response });
 }, 500000);
 
-setTimeout(async () => {
-  setInterval(async () => {
-    const response = await crash.loadRecent();
-    console.log({ response });
-  }, 201000);
-}, 25000);
+setInterval(async () => {
+  const response = await crash.loadRecent();
+  console.log({ response });
+}, 205000);
 
 app.get("/loadLastPages", async (req, res) => {
   try {
