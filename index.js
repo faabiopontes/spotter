@@ -23,8 +23,7 @@ io.on("connection", (socket) => {
 
 const port = process.env.PORT || 3000;
 const roulette = require("./roulette");
-// const crash = require("./crash");
-// const blaze_api = require('./blaze_api');
+const crash = require("./crash");
 
 http.listen(port, async () => {
   console.log(`Listening on *:${port}`);
@@ -33,6 +32,20 @@ http.listen(port, async () => {
   // await crash.loadLastPages();
   // roulette.loadMissingIds();
   // crash.loadMissingIds();
+});
+
+app.post("/roulette/insert", async (req, res) => {
+  const { id, color, created_at } = req.body;
+
+  await roulette.insert(id, color, created_at);
+  res.send("ok");
+});
+
+app.post("/crash/insert", async (req, res) => {
+  const { id, crash_point, created_at } = req.body;
+
+  await crash.insert(id, crash_point, created_at);
+  res.send("ok");
 });
 
 setInterval(async () => {
