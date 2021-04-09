@@ -25,6 +25,34 @@ const crash = {
       }
     }
   },
+  loadRecent: async () => {
+    let inserted = 0;
+    let lastSavedId = 0;
+
+    const blazeResponse = await blaze_api.getCrashRecent();
+    let ids = [];
+
+    blazeResponse.forEach((row) => ids.push(row.id));
+    const pendingIds = await crash.getPendingIds(ids);
+    const pendingRecent = blazeResponse.filter(
+      (history) => pendingIds.indexOf(history.id) !== -1
+    );
+
+    for (const recent of pendingRecent) {
+      const { id, crash_point, created_at } = recent;
+      await crash.insert(id, crash_point, created_at);
+
+      if (lastSavedId == 0) {
+        lastSavedId = id;
+      }
+
+      inserted++;
+    }
+
+    crash.lastSavedId = lastSavedId;
+    
+    return inserted;
+  },
   loadLastPages: async () => {
     let inserted = 0;
     let lastSavedId = 0;
