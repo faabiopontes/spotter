@@ -53,6 +53,11 @@ setTimeout(async () => {
   console.log({ response });
 }, 1000);
 
+setInterval(async () => {
+  const response = await crash.loadRecent();
+  console.log({ response });
+}, 180000);
+
 setTimeout(async () => {
     const response = await roulette.loadRecent();
     console.log({ response });
@@ -62,11 +67,6 @@ setInterval(async () => {
   const response = await roulette.loadRecent();
   console.log({ response });
 }, 500000);
-
-setInterval(async () => {
-  const response = await crash.loadRecent();
-  console.log({ response });
-}, 205000);
 
 app.get("/loadLastPages", async (req, res) => {
   try {
