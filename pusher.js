@@ -1,17 +1,16 @@
-if(process.env.NODE_ENV === 'development') {
+if (process.env.NODE_ENV !== "production") {
   require("dotenv").config({ path: ".env" });
 }
 
 const express = require("express");
 const webPush = require("web-push");
-const bodyParser = require("body-parser");
 const path = require("path");
 
 const app = express();
 
-app.use(bodyParser.json());
+app.use(express.json());
 
-app.use(express.static(path.join(__dirname, "pusher")));
+app.use(express.static(path.join(__dirname, "assets")));
 
 const publicVapidKey = process.env.PUBLIC_VAPID_KEY;
 const privateVapidKey = process.env.PRIVATE_VAPID_KEY;
@@ -29,7 +28,7 @@ app.post("/subscribe", (req, res) => {
 
   const payload = JSON.stringify({
     title: "Spotter",
-    message: "Notificações ativadas com sucesso, apenas aguarde agora."
+    message: "Notificações ativadas com sucesso, apenas aguarde agora.",
   });
   console.log({ subscription });
 

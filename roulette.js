@@ -25,6 +25,34 @@ const roulette = {
       }
     }
   },
+  loadRecent: async () => {
+    let inserted = 0;
+    let lastSavedId = 0;
+
+    const blazeResponse = await blaze_api.getRouletteRecent();
+    let ids = [];
+
+    blazeResponse.forEach((row) => ids.push(row.id));
+    const pendingIds = await roulette.getPendingIds(ids);
+    const pendingRecent = blazeResponse.filter(
+      (history) => pendingIds.indexOf(history.id) !== -1
+    );
+
+    for (const recent of pendingRecent) {
+      const { id, color, created_at } = recent;
+      await roulette.insert(id, color, created_at);
+
+      if (lastSavedId == 0) {
+        lastSavedId = id;
+      }
+
+      inserted++;
+    }
+
+    roulette.lastSavedId = lastSavedId;
+    
+    return inserted;
+  },
   loadLastPages: async () => {
     let inserted = 0;
     let lastSavedId = 0;
