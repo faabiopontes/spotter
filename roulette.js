@@ -159,7 +159,7 @@ const roulette = {
       `,
       [id, color, unixCreatedAt]
     );
-    console.log(`Inserted (${id}, ${color}, ${unixCreatedAt}) into DB`);
+    console.log(`Inserted roulette_history(${id}, ${color}, ${unixCreatedAt}) into DB`);
   },
 };
 

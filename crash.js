@@ -159,7 +159,7 @@ const crash = {
       `,
       [id, crash_point, unixCreatedAt]
     );
-    console.log(`Inserted (${id}, ${crash_point}, ${unixCreatedAt}) into DB`);
+    console.log(`Inserted crash_history(${id}, ${crash_point}, ${unixCreatedAt}) into DB`);
   },
 };
 
