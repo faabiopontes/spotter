@@ -18,8 +18,8 @@ parseCreatedAt = (createdAt) => {
 
 parseCreatedAtToUnixTime = (createdAt) => {
   const date = new Date(createdAt);
-  return date.valueOf()/1000;
-}
+  return date.valueOf() / 1000;
+};
 
 const roulette = {
   history: [],
@@ -84,6 +84,32 @@ const crash = {
   keepCalling: true,
   allLines: "",
   lastSavedId: 2669984,
+  lastId: 0,
+  spot: async () => {
+    crash.lastId = await crash.getLastId();
+    const targetNode = document.querySelector('.crash-previous .entries');
+    const config = { childList: true, subtree: true };
+
+    const callback = function (mutationsList, observer) {
+      for (const mutation of mutationsList) {
+        if (mutation.type === "childList") {
+          const crash_point = mutation.target.firstElementChild.innerHTML.slice(0,-1);
+          // fazer post para enviar o id e o crash_point para a API
+          debugger;
+        }
+      }
+    };
+
+    const observer = new MutationObserver(callback);
+    observer.observe(targetNode, config);
+  },
+  getLastId: async () => {
+    const response = await fetch(
+      "https://api-v2.blaze.com/roulette_games/recent"
+    );
+    const json = await response.json();
+    return json[0].id;
+  },
   call: () => {
     fetch(`https://api-v2.blaze.com/crash_games/${crash.id}`)
       .then((response) => {
@@ -130,4 +156,5 @@ const crash = {
     window.copy(crash.allLines);
   },
 };
-crash.call();
+crash.spot();
+// crash.call();

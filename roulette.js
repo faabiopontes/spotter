@@ -50,7 +50,7 @@ const roulette = {
     }
 
     roulette.lastSavedId = lastSavedId;
-    
+
     return inserted;
   },
   loadLastPages: async () => {
@@ -84,7 +84,7 @@ const roulette = {
     }
 
     roulette.lastSavedId = lastSavedId;
-    
+
     return inserted;
   },
   getMissingIdsIntervals: async () => {
@@ -131,10 +131,17 @@ const roulette = {
     return pendingIds;
   },
   parseCreatedAtToUnixTime: (createdAt) => {
-    const date = new Date(createdAt);
+    let date;
+
+    if (!createdAt) {
+      date = new Date();
+    } else {
+      date = new Date(createdAt);
+    }
+
     return date.valueOf() / 1000;
   },
-  insert: async (id, color, createdAt) => {
+  insert: async (id, color, createdAt = null) => {
     const unixCreatedAt = roulette.parseCreatedAtToUnixTime(createdAt);
 
     const conn = await db.connect();

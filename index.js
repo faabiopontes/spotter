@@ -34,6 +34,20 @@ http.listen(port, async () => {
   // crash.loadMissingIds();
 });
 
+app.post("/roulette/latest", (req, res) => {
+  const { id, color } = req.body;
+
+  roulette.insert(id, color);
+  res.send("ok");
+});
+
+app.post("/crash/latest", (req, res) => {
+  const { id, crash_point } = req.body;
+
+  crash.insert(id, crash_point);
+  res.send("ok");
+});
+
 app.post("/roulette/insert", async (req, res) => {
   const { id, color, created_at } = req.body;
 
@@ -61,7 +75,7 @@ setInterval(async () => {
 setTimeout(async () => {
     const response = await roulette.loadRecent();
     console.log({ response });
-}, 11000);
+}, 5000);
 
 setInterval(async () => {
   const response = await roulette.loadRecent();
