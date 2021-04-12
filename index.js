@@ -63,23 +63,59 @@ app.post("/crash/insert", async (req, res) => {
 });
 
 setTimeout(async () => {
-  const response = await crash.loadRecent();
-  console.log({ response });
+  try {
+    const response = await crash.loadRecent();
+    console.log({ response });
+  } catch (err) {
+    console.log(`Erro em crash.loadRecent`);
+    console.log(err);
+    setTimeout(async () => {
+      const response = await crash.loadRecent();
+      console.log({ response });
+    }, 5000);
+  }
 }, 1000);
 
 setInterval(async () => {
-  const response = await crash.loadRecent();
-  console.log({ response });
+  try {
+    const response = await crash.loadRecent();
+    console.log({ response });
+  } catch (err) {
+    console.log(`Erro em crash.loadRecent`);
+    console.log(err);
+    setTimeout(async () => {
+      const response = await crash.loadRecent();
+      console.log({ response });
+    }, 5000);
+  }
 }, 180000);
 
 setTimeout(async () => {
+  try {
     const response = await roulette.loadRecent();
     console.log({ response });
+  } catch (err) {
+    console.log(`Erro em roulette.loadRecent`);
+    console.log(err);
+    setTimeout(async () => {
+      const response = await roulette.loadRecent();
+      console.log({ response });
+    }, 5000);
+  }
 }, 5000);
 
 setInterval(async () => {
-  const response = await roulette.loadRecent();
-  console.log({ response });
+  try {
+    const response = await roulette.loadRecent();
+    console.log({ response });
+  } catch (err) {
+    console.log(`Erro em roulette.loadRecent`);
+    console.log(err);
+    setTimeout(async () => {
+      const response = await roulette.loadRecent();
+      console.log({ response });
+    }, 5000);
+  }
 }, 500000);
 
 app.get("/loadLastPages", async (req, res) => {
