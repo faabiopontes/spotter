@@ -6,7 +6,6 @@ const subscriptions = {
     const [rows] = await conn.query(`
       SELECT *
       FROM subscriptions
-      WHERE id in (${ids.join()})
     `);
     return rows;
   },
@@ -15,9 +14,9 @@ const subscriptions = {
     await conn.query(
       `
         INSERT INTO subscriptions(
-          subscription,
+          subscription
         ) VALUES (
-          ?,
+          ?
         )
       `,
       [subscription]

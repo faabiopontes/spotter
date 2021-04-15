@@ -2,10 +2,15 @@ if (process.env.NODE_ENV !== "production") {
   require("dotenv").config({ path: ".env" });
 }
 
-const app = require("express")();
+const express = require("express");
+const webPush = require("web-push");
+const path = require("path");
+const app = express();
 const http = require("http").Server(app);
 const io = require("socket.io")(http);
-const fetch = require("node-fetch");
+
+app.use(express.json());
+app.use(express.static(path.join(__dirname, "assets")));
 
 app.get("/", (req, res) => {
   res.sendFile(__dirname + "/index.html");
@@ -24,6 +29,7 @@ io.on("connection", (socket) => {
 const port = process.env.PORT || 3000;
 const roulette = require("./roulette");
 const crash = require("./crash");
+const subscriptions = require("./subscriptions");
 
 http.listen(port, async () => {
   console.log(`Listening on *:${port}`);
@@ -32,6 +38,48 @@ http.listen(port, async () => {
   // await crash.loadLastPages();
   // roulette.loadMissingIds();
   // crash.loadMissingIds();
+});
+
+const publicVapidKey = process.env.PUBLIC_VAPID_KEY;
+const privateVapidKey = process.env.PRIVATE_VAPID_KEY;
+
+webPush.setVapidDetails(
+  "mailto:test@example.com",
+  publicVapidKey,
+  privateVapidKey
+);
+
+app.post("/subscribe", async (req, res) => {
+  const subscription = req.body;
+  const stringSubscription = JSON.stringify(subscription);
+
+  res.status(201).json({});
+  await subscriptions.insert(stringSubscription);
+
+  const payload = JSON.stringify({
+    title: "Spotter",
+    message: "Notificações ativadas com sucesso, apenas aguarde agora.",
+  });
+  console.log({ subscription });
+
+  webPush
+    .sendNotification(subscription, payload)
+    .catch((error) => console.error(error));
+});
+
+app.post("/notify", async (req, res) => {
+  const { title, message } = req.body;
+  const payload = JSON.stringify({ title, message });
+
+  const allSubscriptions = await subscriptions.getAll();
+
+  for (const subscription of allSubscriptions) {
+    webPush
+      .sendNotification(JSON.parse(subscription.subscription), payload)
+      .catch((error) => console.error(error));
+  }
+
+  res.send("notifications sent to all subscribers");
 });
 
 app.post("/roulette/latest", (req, res) => {
@@ -79,6 +127,9 @@ setTimeout(async () => {
 setInterval(async () => {
   try {
     const response = await crash.loadRecent();
+
+    // notificar em caso de número abaixo de 6 ou acima de 10
+
     console.log({ response });
   } catch (err) {
     console.log(`Erro em crash.loadRecent`);
@@ -107,6 +158,10 @@ setTimeout(async () => {
 setInterval(async () => {
   try {
     const response = await roulette.loadRecent();
+    // pegar id da última rodada
+    // pegar últimos 8 brancos
+    // notificar se os últimos 7 foram acima de 10 rodadas
+
     console.log({ response });
   } catch (err) {
     console.log(`Erro em roulette.loadRecent`);
