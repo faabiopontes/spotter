@@ -30,6 +30,7 @@ header {
 
 .buttons {
   text-align: center;
+  margin: 50px;
 }
 
 button {
@@ -58,4 +59,9 @@ button:hover {
 .trigger-push {
   background-color: #557CF2;
   border: 1px solid #557CF2;
+}
+
+.sound-on {
+  background-color: #F12C4C;
+  border: 1px solid #F12C4C;
 }

@@ -9,6 +9,7 @@
     <link rel="icon" type="image/png" href="https://d2cy1obokpvee9.cloudfront.net/manifest/favicon-196x196.png"
         sizes="196x196" class="next-head">
     <link rel="stylesheet" href="style.css">
+    <script src="/socket.io/socket.io.min.js"></script>
 </head>
 
 <body>
@@ -18,10 +19,14 @@
     </header>
 
     <div class="buttons">
+        <button class="sound-on" onclick="activateSounds(this)">Clique aqui para ativar sons</button>
+    </div>
+
+    <div class="buttons">
         <button class="trigger-push">Quero receber notificações neste aparelho</button>
     </div>
 
-    <script src="main.js"></script>
+    <script src="main.js?v=2"></script>
 </body>
 
 </html>

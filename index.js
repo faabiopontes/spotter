@@ -13,11 +13,21 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname, "assets")));
 
 app.get("/", (req, res) => {
-  res.sendFile(__dirname + "/index.html");
+  if ((req.headers["x-forwarded-proto"] || "").endsWith("http")) {
+    res.redirect(`https://${req.headers.host}${req.url}`);
+  } else {
+    res.sendFile(__dirname + "/index.html");
+  }
 });
 
 app.get("/pusher", (req, res) => {
   res.sendFile(__dirname + "/pusher/index.html");
+});
+
+app.get("/play/:id", (req, res) => {
+  const { id } = req.params;
+  io.emit('play', id);
+  res.send(`Played Id: ${id}`)
 });
 
 io.on("connection", (socket) => {

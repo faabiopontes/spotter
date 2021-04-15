@@ -3,6 +3,7 @@ self.addEventListener("push", (event) => {
 
   self.registration.showNotification(data.title, {
     body: data.message,
+    vibrate: [1000, 1000, 1000, 1000, 1000, 1000]
   });
 });
 
