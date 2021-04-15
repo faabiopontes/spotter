@@ -78,10 +78,15 @@ app.post("/subscribe", async (req, res) => {
 });
 
 app.post("/notify", async (req, res) => {
-  const { title, message } = req.body;
+  const { title, message, id } = req.body;
   const payload = JSON.stringify({ title, message });
+  let allSubscriptions;
 
-  const allSubscriptions = await subscriptions.getAll();
+  if (id) {
+    allSubscriptions = await subscriptions.getById(id);
+  } else {
+    allSubscriptions = await subscriptions.getAll();
+  }
 
   for (const subscription of allSubscriptions) {
     webPush

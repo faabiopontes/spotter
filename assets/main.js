@@ -18,7 +18,7 @@ const triggerPush = document.querySelector(".trigger-push");
 
 async function triggerPushNotification() {
   if ("serviceWorker" in navigator) {
-    const register = await navigator.serviceWorker.register("/sw.js?v=2", {
+    const register = await navigator.serviceWorker.register("/sw.js?v=3", {
       scope: "/",
     });
 

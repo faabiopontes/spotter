@@ -9,6 +9,18 @@ const subscriptions = {
     `);
     return rows;
   },
+  getById: async (id) => {
+    const conn = await db.connect();
+    const [rows] = await conn.query(
+      `
+      SELECT *
+      FROM subscriptions
+      WHERE id = ?
+      `,
+      [id]
+    );
+    return rows;
+  },
   insert: async (subscription) => {
     const conn = await db.connect();
     await conn.query(
