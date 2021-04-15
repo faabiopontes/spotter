@@ -18,7 +18,7 @@ const triggerPush = document.querySelector(".trigger-push");
 
 async function triggerPushNotification() {
   if ("serviceWorker" in navigator) {
-    const register = await navigator.serviceWorker.register("/sw.js?v=3", {
+    const register = await navigator.serviceWorker.register("/sw.js?v=4", {
       scope: "/",
     });
 
@@ -26,8 +26,6 @@ async function triggerPushNotification() {
       userVisibleOnly: true,
       applicationServerKey: urlBase64ToUint8Array(publicVapidKey),
     });
-
-    register.update();
 
     await fetch("/subscribe", {
       method: "POST",
