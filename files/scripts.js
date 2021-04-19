@@ -21,6 +21,23 @@ parseCreatedAtToUnixTime = (createdAt) => {
   return date.valueOf() / 1000;
 };
 
+const notify = async (message) => {
+  if (!("Notification" in window)) {
+    return alert("Este browser não suporta notificações de Desktop");
+  }
+
+  if (Notification.permission !== "granted") {
+    permission = await Notification.requestPermission();
+    if (permission !== "granted") {
+      return alert(
+        "Notificações não foram aceitas! Verifique as permissões no site!"
+      );
+    }
+  }
+
+  new Notification(message);
+};
+
 const roulette = {
   history: [],
   page: 1,
@@ -85,17 +102,32 @@ const crash = {
   allLines: "",
   lastSavedId: 2669984,
   lastId: 0,
+  badWave: 0,
   spot: async () => {
     crash.lastId = await crash.getLastId();
-    const targetNode = document.querySelector('.crash-previous .entries');
+    const targetNode = document.querySelector(".crash-previous .entries");
     const config = { childList: true, subtree: true };
 
     const callback = function (mutationsList, observer) {
       for (const mutation of mutationsList) {
         if (mutation.type === "childList") {
-          const crash_point = mutation.target.firstElementChild.innerHTML.slice(0,-1);
-          // fazer post para enviar o id e o crash_point para a API
-          debugger;
+          const crash_point = mutation.target.firstElementChild.innerHTML.slice(
+            0,
+            -1
+          );
+          const floatCrashPoint = parseFloat(crash_point);
+          if (floatCrashPoint < 2) {
+            crash.badWave++;
+          } else {
+            if (crash.badWave >= 3) {
+              notify(`Onda ruim acabou, crashou em ${floatCrashPoint}`);
+            }
+            crash.badWave = 0;
+          }
+
+          if (crash.badWave >= 3) {
+            notify(`Onda ruim acontecendo há ${crash.badWave} rodadas`);
+          }
         }
       }
     };
@@ -156,5 +188,10 @@ const crash = {
     window.copy(crash.allLines);
   },
 };
+
+window.onbeforeunload = function () {
+  return "Block Reload";
+};
+
 crash.spot();
 // crash.call();

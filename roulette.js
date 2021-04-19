@@ -124,7 +124,7 @@ const roulette = {
     const [rows] = await conn.query(`
       SELECT id
       FROM roulette_history
-      WHERE id in (${ids.join()})
+      WHERE id in ('${ids.join("','")}')
     `);
     const existingIds = rows.map((row) => row.id);
     const pendingIds = ids.filter((id) => existingIds.indexOf(id) === -1);
