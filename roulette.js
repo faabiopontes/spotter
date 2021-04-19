@@ -40,7 +40,13 @@ const roulette = {
 
     for (const recent of pendingRecent) {
       const { id, color, created_at } = recent;
-      await roulette.insert(id, color, created_at);
+
+      try {
+        await roulette.insert(id, color, created_at);
+      } catch (err) {
+        console.log("Error at roulette.loadRecent");
+        console.log(err);
+      }
 
       if (lastSavedId == 0) {
         lastSavedId = id;
@@ -69,7 +75,13 @@ const roulette = {
 
       for (const history of pendingHistory) {
         const { id, color, created_at } = history;
-        await roulette.insert(id, color, created_at);
+
+        try {
+          await roulette.insert(id, color, created_at);
+        } catch (err) {
+          console.log("Error at roulette.loadRecent");
+          console.log(err);
+        }
 
         if (lastSavedId == 0) {
           lastSavedId = id;
@@ -159,7 +171,9 @@ const roulette = {
       `,
       [id, color, unixCreatedAt]
     );
-    console.log(`Inserted roulette_history(${id}, ${color}, ${unixCreatedAt}) into DB`);
+    console.log(
+      `Inserted roulette_history(${id}, ${color}, ${unixCreatedAt}) into DB`
+    );
   },
 };
 

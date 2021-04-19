@@ -40,7 +40,13 @@ const crash = {
 
     for (const recent of pendingRecent) {
       const { id, crash_point, created_at } = recent;
-      await crash.insert(id, crash_point, created_at);
+
+      try {
+        await crash.insert(id, crash_point, created_at);
+      } catch (err) {
+        console.log("Error at crash.loadRecent");
+        console.log(err);
+      }
 
       if (lastSavedId == 0) {
         lastSavedId = id;
@@ -50,7 +56,7 @@ const crash = {
     }
 
     crash.lastSavedId = lastSavedId;
-    
+
     return inserted;
   },
   loadLastPages: async () => {
@@ -69,7 +75,13 @@ const crash = {
 
       for (const history of pendingHistory) {
         const { id, crash_point, created_at } = history;
-        await crash.insert(id, crash_point, created_at);
+
+        try {
+          await crash.insert(id, crash_point, created_at);
+        } catch (err) {
+          console.log("Error at crash.loadRecent");
+          console.log(err);
+        }
 
         if (lastSavedId == 0) {
           lastSavedId = id;
@@ -159,7 +171,9 @@ const crash = {
       `,
       [id, crash_point, unixCreatedAt]
     );
-    console.log(`Inserted crash_history(${id}, ${crash_point}, ${unixCreatedAt}) into DB`);
+    console.log(
+      `Inserted crash_history(${id}, ${crash_point}, ${unixCreatedAt}) into DB`
+    );
   },
 };
 
