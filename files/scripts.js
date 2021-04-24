@@ -103,8 +103,10 @@ const crash = {
   lastSavedId: 2669984,
   lastId: 0,
   badWave: 0,
+  badWaveNotificationTrigger: 7,
+  crashPoints: [],
   spot: async () => {
-    crash.lastId = await crash.getLastId();
+    // crash.lastId = await crash.getLastId();
     const targetNode = document.querySelector(".crash-previous .entries");
     const config = { childList: true, subtree: true };
 
@@ -116,16 +118,18 @@ const crash = {
             -1
           );
           const floatCrashPoint = parseFloat(crash_point);
+          crash.crashPoints.push(floatCrashPoint);
+
           if (floatCrashPoint < 2) {
             crash.badWave++;
           } else {
-            if (crash.badWave >= 3) {
+            if (crash.badWave >= crash.badWaveNotificationTrigger) {
               notify(`Onda ruim acabou, crashou em ${floatCrashPoint}`);
             }
             crash.badWave = 0;
           }
 
-          if (crash.badWave >= 3) {
+          if (crash.badWave >= crash.badWaveNotificationTrigger) {
             notify(`Onda ruim acontecendo há ${crash.badWave} rodadas`);
           }
         }
