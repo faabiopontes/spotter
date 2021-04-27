@@ -1,13 +1,3 @@
-// Histórico Crash (só traz os últimos 80 registros)
-// https://api-v2.blaze.com/crash_games/recent/history?page=1
-
-// Histórico Roleta (só traz os últimos 80 registros)
-// https://api-v2.blaze.com/roulette_games/recent/history?page=1
-
-// const audio = new Audio(
-//   "https://freesound.org/data/previews/565/565300_1648170-lq.mp3"
-// );
-
 parseCreatedAt = (createdAt) => {
   return createdAt
     .replaceAll("-", "\t")
@@ -19,23 +9,6 @@ parseCreatedAt = (createdAt) => {
 parseCreatedAtToUnixTime = (createdAt) => {
   const date = new Date(createdAt);
   return date.valueOf() / 1000;
-};
-
-const notify = async (message) => {
-  if (!("Notification" in window)) {
-    return alert("Este browser não suporta notificações de Desktop");
-  }
-
-  if (Notification.permission !== "granted") {
-    permission = await Notification.requestPermission();
-    if (permission !== "granted") {
-      return alert(
-        "Notificações não foram aceitas! Verifique as permissões no site!"
-      );
-    }
-  }
-
-  new Notification(message);
 };
 
 const roulette = {
@@ -101,44 +74,6 @@ const crash = {
   keepCalling: true,
   allLines: "",
   lastSavedId: 2669984,
-  lastId: 0,
-  badWave: 0,
-  badWaveNotificationTrigger: 7,
-  crashPoints: [],
-  spot: async () => {
-    // crash.lastId = await crash.getLastId();
-    const targetNode = document.querySelector(".crash-previous .entries");
-    const config = { childList: true, subtree: true };
-
-    const callback = function (mutationsList, observer) {
-      for (const mutation of mutationsList) {
-        if (mutation.type === "childList") {
-          const crash_point = mutation.target.firstElementChild.innerHTML.slice(
-            0,
-            -1
-          );
-          const floatCrashPoint = parseFloat(crash_point);
-          crash.crashPoints.push(floatCrashPoint);
-
-          if (floatCrashPoint < 2) {
-            crash.badWave++;
-          } else {
-            if (crash.badWave >= crash.badWaveNotificationTrigger) {
-              notify(`Onda ruim acabou, crashou em ${floatCrashPoint}`);
-            }
-            crash.badWave = 0;
-          }
-
-          if (crash.badWave >= crash.badWaveNotificationTrigger) {
-            notify(`Onda ruim acontecendo há ${crash.badWave} rodadas`);
-          }
-        }
-      }
-    };
-
-    const observer = new MutationObserver(callback);
-    observer.observe(targetNode, config);
-  },
   getLastId: async () => {
     const response = await fetch(
       "https://api-v2.blaze.com/roulette_games/recent"
@@ -193,9 +128,5 @@ const crash = {
   },
 };
 
-window.onbeforeunload = function () {
-  return "Block Reload";
-};
 
-crash.spot();
 // crash.call();
