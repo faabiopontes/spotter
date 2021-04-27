@@ -1,16 +1,3 @@
-parseCreatedAt = (createdAt) => {
-  return createdAt
-    .replaceAll("-", "\t")
-    .replaceAll("T", "\t")
-    .replaceAll(":", "\t")
-    .slice(0, 19);
-};
-
-parseCreatedAtToUnixTime = (createdAt) => {
-  const date = new Date(createdAt);
-  return date.valueOf() / 1000;
-};
-
 const notify = async (message) => {
   if (!("Notification" in window)) {
     return alert("Este browser não suporta notificações de Desktop");
@@ -34,7 +21,6 @@ const crash = {
   crashPoints: [],
   sentNotifications: [],
   spot: async () => {
-    // crash.lastId = await crash.getLastId();
     const targetNode = document.querySelector(".crash-previous .entries");
     const config = { childList: true, subtree: true };
 
@@ -47,6 +33,7 @@ const crash = {
           );
           const floatCrashPoint = parseFloat(crash_point);
           crash.crashPoints.push(floatCrashPoint);
+          notify(floatCrashPoint);
 
           if (floatCrashPoint < 2) {
             crash.badWave++;
@@ -72,14 +59,7 @@ const crash = {
 
     const observer = new MutationObserver(callback);
     observer.observe(targetNode, config);
-  },
-  getLastId: async () => {
-    const response = await fetch(
-      "https://api-v2.blaze.com/roulette_games/recent"
-    );
-    const json = await response.json();
-    return json[0].id;
-  },
+  }
 };
 
 window.onbeforeunload = function () {
