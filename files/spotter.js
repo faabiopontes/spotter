@@ -33,7 +33,6 @@ const crash = {
           );
           const floatCrashPoint = parseFloat(crash_point);
           crash.crashPoints.push(floatCrashPoint);
-          notify(floatCrashPoint);
 
           if (floatCrashPoint < 2) {
             crash.badWave++;
