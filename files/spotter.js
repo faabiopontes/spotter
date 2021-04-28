@@ -34,6 +34,11 @@ const crash = {
           const floatCrashPoint = parseFloat(crash_point);
           crash.crashPoints.push(floatCrashPoint);
 
+          if (floatCrashPoint > 10) {
+            const message = `ATENÇÃO: Crash Point: ${floatCrashPoint}`
+            notify(message);
+          }
+
           if (floatCrashPoint < 2) {
             crash.badWave++;
           } else {
