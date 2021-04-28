@@ -29,7 +29,7 @@ const getPoint = (hash) => {
 const start = async () => {
   const [firstRecord] = await blaze_api.getCrashHistory();
   const lastServerSeed = firstRecord.server_seed;
-  const amount = 3500;
+  const amount = 10500;
   const chain = [lastServerSeed];
 
   for (let i = 0; i < amount; i++) {
@@ -53,6 +53,10 @@ const start = async () => {
 
     const point = getPoint(hash);
 
+    // TODO: Ajustar para pegar a data do último Crash
+    // Ir subtraindo 30 segundos
+    // E colocar no CSV tanto a coluna do id incremental
+    // Quanto da data no formato ano, mes, dia, hora, minuto, segundo
     return point;
   });
 
