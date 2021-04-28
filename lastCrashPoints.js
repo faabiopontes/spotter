@@ -1,24 +1,6 @@
 const crypto = require("crypto");
 const fs = require("fs");
-
-const lastServerSeed =
-  "78c8935bf1b4dbea848a60f0eb6da7c7a5c508d8a6610eb1f8ede8adea6cea3a";
-const amount = 3500;
-
-const chain = [lastServerSeed];
-
-for (let i = 0; i < amount; i++) {
-  chain.push(
-    crypto
-      .createHash("sha256")
-      .update(chain[chain.length - 1])
-      .digest("hex")
-  );
-}
-
-// the hash of bitcoin block 570128 (https://medium.com/@blazedev/blaze-com-crash-seeding-event-v2-d774d7aeeaad)
-const clientSeed =
-  "0000000000000000000415ebb64b0d51ccee0bb55826e43846e5bea777d91966";
+const blaze_api = require("./blaze_api");
 
 const divisible = (hash, mod) => {
   let val = 0;
@@ -31,7 +13,7 @@ const divisible = (hash, mod) => {
   return val === 0;
 };
 
-function getPoint(hash) {
+const getPoint = (hash) => {
   // In 1 of 15 games the game crashes instantly.
   if (divisible(hash, 15)) return 0;
 
@@ -42,26 +24,48 @@ function getPoint(hash) {
   const point = (Math.floor((100 * e - h) / (e - h)) / 100).toFixed(2);
 
   return point.replace(".", ",");
-}
+};
 
-const crashPoints = chain.map((seed) => {
-  const hash = crypto
-    .createHmac("sha256", seed)
-    .update(clientSeed)
-    .digest("hex");
+const start = async () => {
+  const [firstRecord] = await blaze_api.getCrashHistory();
+  const lastServerSeed = firstRecord.server_seed;
+  const amount = 3500;
+  const chain = [lastServerSeed];
 
-  const point = getPoint(hash);
-
-  return point;
-});
-
-const fileContent = crashPoints.reverse().join("\n");
-const fileName = "crash_points.csv";
-
-fs.writeFile(fileName, fileContent, (err) => {
-  if (err) {
-    return console.error(err);
+  for (let i = 0; i < amount; i++) {
+    chain.push(
+      crypto
+        .createHash("sha256")
+        .update(chain[chain.length - 1])
+        .digest("hex")
+    );
   }
 
-  console.log(`Last ${amount} Crash Points written to ${fileName}`);
-});
+  // the hash of bitcoin block 570128 (https://medium.com/@blazedev/blaze-com-crash-seeding-event-v2-d774d7aeeaad)
+  const clientSeed =
+    "0000000000000000000415ebb64b0d51ccee0bb55826e43846e5bea777d91966";
+
+  const crashPoints = chain.map((seed) => {
+    const hash = crypto
+      .createHmac("sha256", seed)
+      .update(clientSeed)
+      .digest("hex");
+
+    const point = getPoint(hash);
+
+    return point;
+  });
+
+  const fileContent = crashPoints.reverse().join("\n");
+  const fileName = "crash_points.csv";
+
+  fs.writeFile(fileName, fileContent, (err) => {
+    if (err) {
+      return console.error(err);
+    }
+
+    console.log(`Last ${amount} Crash Points written to ${fileName}`);
+  });
+};
+
+start();
