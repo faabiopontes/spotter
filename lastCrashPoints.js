@@ -2,6 +2,28 @@ const crypto = require("crypto");
 const fs = require("fs");
 const blaze_api = require("./blaze_api");
 
+const divisible = (hash, mod) => {
+  let val = 0;
+
+  let o = hash.length % 4;
+  for (let i = o > 0 ? o - 4 : 0; i < hash.length; i += 4) {
+    val = ((val << 16) + parseInt(hash.substring(i, i + 4), 16)) % mod;
+  }
+
+  return val === 0;
+};
+
+const getPoint = (hash) => {
+  if (divisible(hash, 15)) return 0;
+
+  let h = parseInt(hash.slice(0, 52 / 4), 16);
+  let e = Math.pow(2, 52);
+
+  const point = (Math.floor((100 * e - h) / (e - h)) / 100).toFixed(2);
+
+  return point.replace(".", ",");
+};
+
 const start = async () => {
   const [firstRecord] = await blaze_api.getCrashHistory();
   const lastServerSeed = firstRecord.server_seed;
@@ -18,7 +40,8 @@ const start = async () => {
   }
 
   // the hash of bitcoin block 570128 (https://medium.com/@blazedev/blaze-com-crash-seeding-event-v2-d774d7aeeaad)
-  
+  const clientSeed =
+    "0000000000000000000415ebb64b0d51ccee0bb55826e43846e5bea777d91966";
 
   const crashPoints = chain.map((seed) => {
     const hash = crypto

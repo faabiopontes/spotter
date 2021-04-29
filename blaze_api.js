@@ -10,6 +10,8 @@ const blaze_api = {
 
     try {
       json = JSON.parse(text);
+      // VERIFICAR SE TEM RECORDS OU NÃO
+      // PARSEAR A DATA AQUI MESMO
     } catch (err) {
       console.error(err);
       console.error(text);
