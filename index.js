@@ -135,7 +135,8 @@ app.post("/crash/insert", async (req, res) => {
 //   }
 // }, 1000);
 
-const crashInterval = setInterval(async () => {
+const crashInterval = process.env.CRASH_INTERVAL ? eval(process.env.CRASH_INTERVAL) : 100000;
+setInterval(async () => {
   try {
     const response = await crash.loadLastPages();
 
@@ -150,7 +151,7 @@ const crashInterval = setInterval(async () => {
       console.log({ response });
     }, 5000);
   }
-}, 9000);
+}, crashInterval);
 
 // setTimeout(async () => {
 //   try {
