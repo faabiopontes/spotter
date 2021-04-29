@@ -1,7 +1,6 @@
 if (process.env.NODE_ENV !== "production") {
   require("dotenv").config({ path: ".env" });
 }
-
 const express = require("express");
 const webPush = require("web-push");
 const path = require("path");
@@ -11,6 +10,8 @@ const io = require("socket.io")(http);
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "assets")));
+
+// bot.sendMessage(process.env.TELEGRAM_GROUP_ID, 'teste dinâmico');
 
 app.get("/", (req, res) => {
   if ((req.headers["x-forwarded-proto"] || "").endsWith("http")) {
@@ -43,11 +44,6 @@ const subscriptions = require("./subscriptions");
 
 http.listen(port, async () => {
   console.log(`Listening on *:${port}`);
-
-  // await roulette.loadLastPages();
-  // await crash.loadLastPages();
-  // roulette.loadMissingIds();
-  // crash.loadMissingIds();
 });
 
 const publicVapidKey = process.env.PUBLIC_VAPID_KEY;
@@ -125,23 +121,23 @@ app.post("/crash/insert", async (req, res) => {
   res.send("ok");
 });
 
+// setTimeout(async () => {
+//   try {
+//     const response = await crash.loadRecent();
+//     console.log({ response });
+//   } catch (err) {
+//     console.log(`Erro em crash.loadRecent`);
+//     console.log(err);
+//     setTimeout(async () => {
+//       const response = await crash.loadRecent();
+//       console.log({ response });
+//     }, 5000);
+//   }
+// }, 1000);
+
 setTimeout(async () => {
   try {
-    const response = await crash.loadRecent();
-    console.log({ response });
-  } catch (err) {
-    console.log(`Erro em crash.loadRecent`);
-    console.log(err);
-    setTimeout(async () => {
-      const response = await crash.loadRecent();
-      console.log({ response });
-    }, 5000);
-  }
-}, 1000);
-
-setInterval(async () => {
-  try {
-    const response = await crash.loadRecent();
+    const response = await crash.loadLastPages();
 
     // notificar em caso de número abaixo de 6 ou acima de 10
 
@@ -150,51 +146,51 @@ setInterval(async () => {
     console.log(`Erro em crash.loadRecent`);
     console.log(err);
     setTimeout(async () => {
-      const response = await crash.loadRecent();
+      const response = await crash.loadLastPages();
       console.log({ response });
     }, 5000);
   }
-}, 180000);
+}, 1000);
 
-setTimeout(async () => {
-  try {
-    const response = await roulette.loadRecent();
-    console.log({ response });
-  } catch (err) {
-    console.log(`Erro em roulette.loadRecent`);
-    console.log(err);
-    setTimeout(async () => {
-      const response = await roulette.loadRecent();
-      console.log({ response });
-    }, 5000);
-  }
-}, 5000);
+// setTimeout(async () => {
+//   try {
+//     const response = await roulette.loadRecent();
+//     console.log({ response });
+//   } catch (err) {
+//     console.log(`Erro em roulette.loadRecent`);
+//     console.log(err);
+//     setTimeout(async () => {
+//       const response = await roulette.loadRecent();
+//       console.log({ response });
+//     }, 5000);
+//   }
+// }, 5000);
 
-setInterval(async () => {
-  try {
-    const response = await roulette.loadRecent();
-    // pegar id da última rodada
-    // pegar últimos 8 brancos
-    // notificar se os últimos 7 foram acima de 10 rodadas
+// setInterval(async () => {
+//   try {
+//     const response = await roulette.loadRecent();
+//     // pegar id da última rodada
+//     // pegar últimos 8 brancos
+//     // notificar se os últimos 7 foram acima de 10 rodadas
 
-    console.log({ response });
-  } catch (err) {
-    console.log(`Erro em roulette.loadRecent`);
-    console.log(err);
-    setTimeout(async () => {
-      const response = await roulette.loadRecent();
-      console.log({ response });
-    }, 5000);
-  }
-}, 500000);
+//     console.log({ response });
+//   } catch (err) {
+//     console.log(`Erro em roulette.loadRecent`);
+//     console.log(err);
+//     setTimeout(async () => {
+//       const response = await roulette.loadRecent();
+//       console.log({ response });
+//     }, 5000);
+//   }
+// }, 500000);
 
-app.get("/loadLastPages", async (req, res) => {
-  try {
-    res.send("Last 10 pages successfully added");
-  } catch (err) {
-    res.send(err);
-  }
-});
+// app.get("/loadLastPages", async (req, res) => {
+//   try {
+//     res.send("Last 10 pages successfully added");
+//   } catch (err) {
+//     res.send(err);
+//   }
+// });
 
 // app.get("/roulette/loadInterval", async (req, res) => {
 //   const { start, end } = req.query;

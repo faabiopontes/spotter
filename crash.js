@@ -1,5 +1,6 @@
 const blaze_api = require("./blaze_api");
 const db = require("./db");
+const bot = require("./bot");
 
 const crash = {
   lastSavedId: 0,
@@ -63,12 +64,17 @@ const crash = {
     let inserted = 0;
     let lastSavedId = 0;
 
-    for (let page = 1; page <= 10; page++) {
+    for (let page = 1; page <= 1; page++) {
       const blazeResponse = await blaze_api.getCrashHistory(page);
-      let ids = [];
+      let crasHistory = [];
 
-      blazeResponse.forEach((row) => ids.push(row.id));
-      const pendingIds = await crash.getPendingIds(ids);
+      blazeResponse.forEach((row) => {
+        crasHistory.push({ id: row.id, createdAt: row.created_at });
+        row.crash_point = blaze_api.getCrashPointFromServerSeed(
+          row.server_seed
+        );
+      });
+      const pendingIds = await crash.getPendingIds(crasHistory);
       const pendingHistory = blazeResponse.filter(
         (history) => pendingIds.indexOf(history.id) !== -1
       );
@@ -131,16 +137,23 @@ const crash = {
 
     return lastSavedId;
   },
-  getPendingIds: async (ids) => {
+  getPendingIds: async (history) => {
+    const parsedCreatedAts = history.map(({ createdAt }) => {
+      const dateTime = crash.parseCreatedAtToDateTime(createdAt);
+      return dateTime;
+    });
     const conn = await db.connect();
-    const [rows] = await conn.query(`
+    const query = `
       SELECT id
       FROM crash_history
-      WHERE id in ('${ids.join("','")}')
-    `);
+      WHERE created_at in ('${parsedCreatedAts.join("','")}')
+    `;
+    const [rows] = await conn.query(query);
     const existingIds = rows.map((row) => row.id);
-    const pendingIds = ids.filter((id) => existingIds.indexOf(id) === -1);
-    return pendingIds;
+    const pendingIds = history.filter(
+      ({ id }) => existingIds.indexOf(id) === -1
+    );
+    return pendingIds.map((pending) => pending.id);
   },
   parseCreatedAtToUnixTime: (createdAt) => {
     let date;
@@ -152,6 +165,25 @@ const crash = {
     }
 
     return date.valueOf() / 1000;
+  },
+  parseCreatedAtToDateTime: (createdAt) => {
+    let date;
+
+    if (!createdAt) {
+      date = new Date();
+    } else {
+      date = new Date(createdAt);
+    }
+    const year = date.getFullYear();
+    let month = date.getMonth();
+    month++;
+    month = month.toString().padStart(2, '0');
+    const day = date.getDay().toString().padStart(2, '0');
+    const hours = date.getHours().toString().padStart(2, '0');
+    const minutes = date.getMinutes().toString().padStart(2, '0');
+    const seconds = date.getMinutes().toString().padStart(2, '0');
+
+    return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
   },
   insert: async (id, crash_point, createdAt = null) => {
     const unixCreatedAt = crash.parseCreatedAtToUnixTime(createdAt);

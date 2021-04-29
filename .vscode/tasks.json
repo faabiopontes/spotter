@@ -7,6 +7,11 @@
       "label": "Save Last Crash Points to File",
       "type": "shell",
       "command": "node lastCrashPoints.js"
+    },
+    {
+      "label": "Start",
+      "type": "shell",
+      "command": "yarn start"
     }
   ]
 }
