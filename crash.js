@@ -64,17 +64,17 @@ const crash = {
     let inserted = 0;
     let lastSavedId = 0;
 
-    for (let page = 1; page <= 1; page++) {
+    for (let page = 1; page <= 10; page++) {
       const blazeResponse = await blaze_api.getCrashHistory(page);
-      let crasHistory = [];
+      let crashHistory = [];
 
       blazeResponse.forEach((row) => {
-        crasHistory.push({ id: row.id, createdAt: row.created_at });
+        crashHistory.push({ id: row.id, createdAt: row.created_at });
         row.crash_point = blaze_api.getCrashPointFromServerSeed(
           row.server_seed
         );
       });
-      const pendingIds = await crash.getPendingIds(crasHistory);
+      const pendingIds = await crash.getPendingIds(crashHistory);
       const pendingHistory = blazeResponse.filter(
         (history) => pendingIds.indexOf(history.id) !== -1
       );
@@ -178,15 +178,15 @@ const crash = {
     let month = date.getMonth();
     month++;
     month = month.toString().padStart(2, '0');
-    const day = date.getDay().toString().padStart(2, '0');
+    const day = date.getDate().toString().padStart(2, '0');
     const hours = date.getHours().toString().padStart(2, '0');
     const minutes = date.getMinutes().toString().padStart(2, '0');
-    const seconds = date.getMinutes().toString().padStart(2, '0');
+    const seconds = date.getSeconds().toString().padStart(2, '0');
 
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
   },
   insert: async (id, crash_point, createdAt = null) => {
-    const unixCreatedAt = crash.parseCreatedAtToUnixTime(createdAt);
+    const dateTime = crash.parseCreatedAtToDateTime(createdAt);
 
     const conn = await db.connect();
     await conn.query(
@@ -198,13 +198,13 @@ const crash = {
         ) VALUES (
           ?,
           ?,
-          FROM_UNIXTIME(?)
+          ?
         )
       `,
-      [id, crash_point, unixCreatedAt]
+      [id, crash_point, dateTime]
     );
     console.log(
-      `Inserted crash_history(${id}, ${crash_point}, ${unixCreatedAt}) into DB`
+      `Inserted crash_history(${id}, ${crash_point}, ${dateTime}) into DB`
     );
   },
 };
