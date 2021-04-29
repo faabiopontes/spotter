@@ -135,7 +135,7 @@ app.post("/crash/insert", async (req, res) => {
 //   }
 // }, 1000);
 
-setInterval(async () => {
+const crashInterval = setInterval(async () => {
   try {
     const response = await crash.loadLastPages();
 
@@ -150,7 +150,7 @@ setInterval(async () => {
       console.log({ response });
     }, 5000);
   }
-}, 10000);
+}, 9000);
 
 // setTimeout(async () => {
 //   try {
