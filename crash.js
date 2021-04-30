@@ -9,17 +9,18 @@ const crash = {
     const crashInterval = process.env.CRASH_INTERVAL || 100000;
     crash.lastGames = await crash.loadLastGamesFromDB(100);
 
-    setInterval(async () => { 
+    setInterval(async () => {
       try {
         const response = await crash.loadLastPages();
-        if(response.length) {
+        if (response.length) {
           crash.addToLastGames(response);
           crash.checkSignals();
         }
 
         console.log({ response });
       } catch (err) {
-        console.log(`Erro em crash.loadRecent`);
+        console.log(`Erro em crash.start`);
+        bot.sendMessageAdmin(`Erro em crash.start: ${err.message}`);
         console.log(err);
         setTimeout(async () => {
           const response = await crash.loadLastPages();
@@ -160,10 +161,10 @@ const crash = {
       LIMIT 0, ${limit}
     `;
     const [rows] = await conn.query(query);
-    return rows.map(row => parseFloat(row.crash_point));
+    return rows.map((row) => parseFloat(row.crash_point));
   },
   addToLastGames: (elements) => {
-    elements.reverse().forEach(element => {
+    elements.reverse().forEach((element) => {
       crash.lastGames.pop();
       crash.lastGames.unshift(element);
     });
@@ -174,20 +175,30 @@ const crash = {
   },
   badWave: false,
   isBadWaveEqualOrAbove: (badWaveLength) => {
-    const lastWinIndex = crash.lastGames.findIndex(crashPoint => crashPoint > 2);
-    console.log({ lastWinIndex, badWaveLength });
+    const firstWinIndex = crash.lastGames.findIndex(
+      (crashPoint) => crashPoint > 2
+    );
+    const secondWinIndex = crash.lastGames.findIndex((crashPoint, index) => {
+      return crashPoint > 2 && index > firstWinIndex;
+    });
+    console.log({ firstWinIndex, secondWinIndex, badWaveLength });
 
-    if(crash.badWave && lastWinIndex < badWaveLength) {
+    if (crash.badWave && firstWinIndex < badWaveLength) {
       crash.badWave = false;
-      const crashPoint = crash.lastGames[lastWinIndex];
+      const crashPoint = crash.lastGames[firstWinIndex];
+      const length = secondWinIndex - firstWinIndex - 1;
 
-      bot.sendMessage(`Sequencia ruim acabou, crashando em ${crashPoint}x`);
+      bot.sendMessage(
+        `Sequencia ruim acabou após ${length} rodadas, crashando em ${crashPoint}x`
+      );
     }
 
-    if(lastWinIndex >= badWaveLength) {
+    if (firstWinIndex >= badWaveLength) {
       crash.badWave = true;
 
-      bot.sendMessage(`Sequencia ruim acontecendo há ${lastWinIndex} rodadas!`);
+      bot.sendMessage(
+        `Sequencia ruim acontecendo há ${firstWinIndex} rodadas!`
+      );
     }
   },
   getLastSavedId: async () => {
@@ -240,11 +251,11 @@ const crash = {
     const year = date.getFullYear();
     let month = date.getMonth();
     month++;
-    month = month.toString().padStart(2, '0');
-    const day = date.getDate().toString().padStart(2, '0');
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    const seconds = date.getSeconds().toString().padStart(2, '0');
+    month = month.toString().padStart(2, "0");
+    const day = date.getDate().toString().padStart(2, "0");
+    const hours = date.getHours().toString().padStart(2, "0");
+    const minutes = date.getMinutes().toString().padStart(2, "0");
+    const seconds = date.getSeconds().toString().padStart(2, "0");
 
     return `${year}-${month}-${day} ${hours}:${minutes}:${seconds}`;
   },
