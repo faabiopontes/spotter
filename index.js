@@ -27,8 +27,8 @@ app.get("/pusher", (req, res) => {
 
 app.get("/play/:id", (req, res) => {
   const { id } = req.params;
-  io.emit('play', id);
-  res.send(`Played Id: ${id}`)
+  io.emit("play", id);
+  res.send(`Played Id: ${id}`);
 });
 
 io.on("connection", (socket) => {
