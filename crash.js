@@ -188,6 +188,12 @@ const crash = {
       const crashPoint = crash.lastGames[firstWinIndex];
       const length = secondWinIndex - firstWinIndex - 1;
 
+      if (length < badWaveLength) {
+        bot.sendMessageAdmin(
+          "Algo errado não está certo, verificar logs desse horário"
+        );
+      }
+
       bot.sendMessage(
         `Sequencia ruim acabou após ${length} rodadas, crashando em ${crashPoint}x`
       );
