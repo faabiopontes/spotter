@@ -46,6 +46,8 @@ http.listen(port, async () => {
   console.log(`Listening on *:${port}`);
 });
 
+crash.start();
+
 const publicVapidKey = process.env.PUBLIC_VAPID_KEY;
 const privateVapidKey = process.env.PRIVATE_VAPID_KEY;
 
@@ -134,24 +136,6 @@ app.post("/crash/insert", async (req, res) => {
 //     }, 5000);
 //   }
 // }, 1000);
-
-const crashInterval = process.env.CRASH_INTERVAL || 100000;
-setInterval(async () => {
-  try {
-    const response = await crash.loadLastPages();
-
-    // notificar em caso de número abaixo de 6 ou acima de 10
-
-    console.log({ response });
-  } catch (err) {
-    console.log(`Erro em crash.loadRecent`);
-    console.log(err);
-    setTimeout(async () => {
-      const response = await crash.loadLastPages();
-      console.log({ response });
-    }, 5000);
-  }
-}, crashInterval);
 
 // setTimeout(async () => {
 //   try {

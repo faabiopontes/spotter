@@ -4,6 +4,30 @@ const bot = require("./bot");
 
 const crash = {
   lastSavedId: 0,
+  lastGames: [],
+  start: async () => {
+    const crashInterval = process.env.CRASH_INTERVAL || 100000;
+    crash.lastGames = await crash.loadLastGamesFromDB(100);
+
+    setInterval(async () => { 
+      try {
+        const response = await crash.loadLastPages();
+        if(response.length) {
+          crash.addToLastGames(response);
+          crash.checkSignals();
+        }
+
+        console.log({ response });
+      } catch (err) {
+        console.log(`Erro em crash.loadRecent`);
+        console.log(err);
+        setTimeout(async () => {
+          const response = await crash.loadLastPages();
+          console.log({ response });
+        }, 5000);
+      }
+    }, crashInterval);
+  },
   loadMissingIds: async () => {
     const missingIdsIntervals = await crash.getMissingIdsIntervals();
     missingIdsIntervals.reverse();
@@ -61,7 +85,7 @@ const crash = {
     return inserted;
   },
   loadLastPages: async () => {
-    let inserted = 0;
+    let inserted = [];
     let lastSavedId = 0;
 
     for (let page = 1; page <= 10; page++) {
@@ -93,7 +117,7 @@ const crash = {
           lastSavedId = id;
         }
 
-        inserted++;
+        inserted.push(parseFloat(crash_point));
       }
 
       if (pendingHistory.length < 8) {
@@ -126,6 +150,45 @@ const crash = {
     `);
 
     return rows;
+  },
+  loadLastGamesFromDB: async (limit = 100) => {
+    const conn = await db.connect();
+    const query = `
+      SELECT crash_point
+      FROM crash_history
+      ORDER BY created_at DESC
+      LIMIT 0, ${limit}
+    `;
+    const [rows] = await conn.query(query);
+    return rows.map(row => parseFloat(row.crash_point));
+  },
+  addToLastGames: (elements) => {
+    elements.reverse().forEach(element => {
+      crash.lastGames.pop();
+      crash.lastGames.unshift(element);
+    });
+    debugger;
+  },
+  checkSignals: () => {
+    crash.isBadWaveEqualOrAbove(3);
+  },
+  badWave: false,
+  isBadWaveEqualOrAbove: (badWaveLength) => {
+    const lastWinIndex = crash.lastGames.findIndex(crashPoint => crashPoint > 2);
+    console.log({ lastWinIndex, badWaveLength });
+
+    if(crash.badWave && lastWinIndex < badWaveLength) {
+      crash.badWave = false;
+      const crashPoint = crash.lastGames[lastWinIndex];
+
+      bot.sendMessage(`Sequencia ruim acabou, crashando em ${crashPoint}x`);
+    }
+
+    if(lastWinIndex >= badWaveLength) {
+      crash.badWave = true;
+
+      bot.sendMessage(`Sequencia ruim acontecendo há ${lastWinIndex} rodadas!`);
+    }
   },
   getLastSavedId: async () => {
     const conn = await db.connect();
