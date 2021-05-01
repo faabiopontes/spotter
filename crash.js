@@ -15,7 +15,7 @@ const crash = {
         if (response.length == 0) {
           return;
         }
-        
+
         crash.addToLastGames(response);
         crash.checkSignals();
 
@@ -198,12 +198,11 @@ const crash = {
         );
       }
 
-      bot.sendMessage(`
-        ${signalInfo} \n
-        <b>${win ? "WIN ✅" : "LOSS 🔴"}</b> \n
-        Sequencia de LOSS acabou após ${length} rodadas \n
-        Com Crash Point: <b>${crashPoint}x</b>
-      `);
+      bot.sendMessage(
+        `${signalInfo}\n<b>${
+          win ? "WIN ✅" : "LOSS 🔴"
+        }</b>\nSequencia de LOSS acabou após ${length} rodadas\nCom Crash Point: <b>${crashPoint}x</b>`
+      );
     }
 
     if (firstWinIndex == badWaveLength) {
@@ -215,11 +214,9 @@ const crash = {
       const martingaleInfo =
         martingaleLength > 1 ? `(Max ${martingaleLength} Martingale)` : "";
 
-      bot.sendMessage(`
-        ${signalInfo} \n
-        Se após <b>${crashPoint}x</b> vier <b>LOSS</b> ⚫ \n
-        Entrar na próxima ${martingaleInfo}
-      `);
+      bot.sendMessage(
+        `${signalInfo}\nSe após <b>${crashPoint}x</b> vier <b>LOSS</b> ⚫\nEntrar na próxima ${martingaleInfo}`
+      );
     }
   },
   aboveCrashPointInTheLast: (crashPoint, last) => {},
