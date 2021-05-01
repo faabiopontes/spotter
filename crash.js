@@ -171,42 +171,53 @@ const crash = {
     debugger;
   },
   checkSignals: () => {
-    crash.isBadWaveEqualOrAbove(3);
+    crash.isBadWaveEqualOrAbove(3, 3);
   },
   badWave: false,
-  isBadWaveEqualOrAbove: (badWaveLength) => {
+  isBadWaveEqualOrAbove: (badWaveLength, martingaleLength = 1) => {
     const firstWinIndex = crash.lastGames.findIndex(
       (crashPoint) => crashPoint > 2
     );
     const secondWinIndex = crash.lastGames.findIndex((crashPoint, index) => {
       return crashPoint > 2 && index > firstWinIndex;
     });
+    const signalInfo = `**Sinal Bronze** :bell: (81% acerto)`;
     console.log({ firstWinIndex, secondWinIndex, badWaveLength });
 
     if (crash.badWave && firstWinIndex < badWaveLength) {
       crash.badWave = false;
       const crashPoint = crash.lastGames[firstWinIndex];
       const length = secondWinIndex - firstWinIndex - 1;
+      const win = badWaveLength + martingaleLength > length;
 
       if (length < badWaveLength) {
-        bot.sendMessageAdmin(
+        return bot.sendMessageAdmin(
           "Algo errado não está certo, verificar logs desse horário"
         );
       }
 
-      bot.sendMessage(
-        `Sequencia ruim acabou após ${length} rodadas, crashando em ${crashPoint}x`
-      );
+      bot.sendMessage(`
+        ${signalInfo}\n
+        **${win ? "WIN :white_check_mark:" : "LOSS :red_circle"}** 
+        Sequencia de LOSS acabou após ${length} rodadas\n
+        Com Crash Point: **${crashPoint}x**
+      `);
     }
 
-    if (firstWinIndex >= badWaveLength) {
+    if (firstWinIndex = badWaveLength) {
+      const crashPoint = crash.lastGames[0];
+      const martingaleInfo =
+        martingaleLength > 1 ? `(Max ${martingaleLength} Martingale)` : "";
       crash.badWave = true;
 
-      bot.sendMessage(
-        `Sequencia ruim acontecendo há ${firstWinIndex} rodadas!`
-      );
+      bot.sendMessage(`
+        ${signalInfo}\n
+        Se após **${crashPoint}x** vier **LOSS** :black_circle:\n
+        Entrar na próxima ${martingaleInfo}
+      `);
     }
   },
+  aboveCrashPointInTheLast: (crashPoint, last) => {},
   getLastSavedId: async () => {
     const conn = await db.connect();
     const [rows] = await conn.query(`
