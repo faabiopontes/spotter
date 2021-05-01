@@ -176,7 +176,11 @@ const crash = {
     crash.isBadWaveEqualOrAbove(3, 3, 2);
   },
   badWave: false,
-  isBadWaveEqualOrAbove: (badWaveLength, martingaleLength = 1, minCrashPoint) => {
+  isBadWaveEqualOrAbove: (
+    badWaveLength,
+    martingaleLength = 1,
+    minCrashPoint
+  ) => {
     const firstWinIndex = crash.lastGames.findIndex(
       (crashPoint) => crashPoint >= minCrashPoint
     );
@@ -210,12 +214,13 @@ const crash = {
     }
 
     if (firstWinIndex == badWaveLength - 1) {
-      const crashPoint = crash.lastGames[0];
+      const crashPoint = crash.lastGames[0] > 0 ? crash.lastGames[0] : 1.0;
       const martingaleInfo =
         martingaleLength > 1 ? `(Max ${martingaleLength} Martingale)` : "";
+      const autoWithdrawInfo = `Auto-retirar: ${minCrashPoint - 0.01}`;
 
       bot.sendMessage(
-        `${signalInfo}\nSe após <b>${crashPoint > 0 ? crashPoint : 1.00}x</b> vier <b>LOSS</b> ⚫\nEntrar na próxima ${martingaleInfo}`
+        `${signalInfo}\nSe após <b>${crashPoint}x</b> vier <b>LOSS</b> ⚫\nEntrar na próxima ${martingaleInfo}\n${autoWithdrawInfo}`
       );
     }
   },
