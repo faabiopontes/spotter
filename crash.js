@@ -207,10 +207,13 @@ const crash = {
     }
 
     if (firstWinIndex == badWaveLength) {
+      crash.badWave = true;
+    }
+
+    if (firstWinIndex == badWaveLength - 1) {
       const crashPoint = crash.lastGames[0];
       const martingaleInfo =
         martingaleLength > 1 ? `(Max ${martingaleLength} Martingale)` : "";
-      crash.badWave = true;
 
       bot.sendMessage(`
         ${signalInfo} \n
