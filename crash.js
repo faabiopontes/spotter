@@ -173,15 +173,15 @@ const crash = {
     debugger;
   },
   checkSignals: () => {
-    crash.isBadWaveEqualOrAbove(3, 3);
+    crash.isBadWaveEqualOrAbove(3, 3, 2);
   },
   badWave: false,
-  isBadWaveEqualOrAbove: (badWaveLength, martingaleLength = 1) => {
+  isBadWaveEqualOrAbove: (badWaveLength, martingaleLength = 1, minCrashPoint) => {
     const firstWinIndex = crash.lastGames.findIndex(
-      (crashPoint) => crashPoint > 2
+      (crashPoint) => crashPoint >= minCrashPoint
     );
     const secondWinIndex = crash.lastGames.findIndex((crashPoint, index) => {
-      return crashPoint > 2 && index > firstWinIndex;
+      return crashPoint >= minCrashPoint && index > firstWinIndex;
     });
     const signalInfo = `<b>Sinal Bronze</b> 🔔 (81% acerto)`;
     console.log({ firstWinIndex, secondWinIndex, badWaveLength });
