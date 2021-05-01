@@ -215,7 +215,7 @@ const crash = {
         martingaleLength > 1 ? `(Max ${martingaleLength} Martingale)` : "";
 
       bot.sendMessage(
-        `${signalInfo}\nSe após <b>${crashPoint}x</b> vier <b>LOSS</b> ⚫\nEntrar na próxima ${martingaleInfo}`
+        `${signalInfo}\nSe após <b>${crashPoint > 0 ? crashPoint : 1.00}x</b> vier <b>LOSS</b> ⚫\nEntrar na próxima ${martingaleInfo}`
       );
     }
   },
