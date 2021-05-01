@@ -9,12 +9,12 @@ const bot = new TelegramBot(token, { polling: polling ? true : false });
 
 const sendMessage = (message) => {
   console.log(`bot.sendMessage: ${message}`);
-  bot.sendMessage(chatId, message);
+  bot.sendMessage(chatId, message, { parse_mode: 'HTML '});
 };
 
 const sendMessageAdmin = (message) => {
   console.log(`bot.sendMessageAdmin: ${message}`);
-  bot.sendMessage(adminChatId, message);
+  bot.sendMessage(adminChatId, message, { parse_mode: 'HTML '});
 };
 
 module.exports = { sendMessage, sendMessageAdmin };
