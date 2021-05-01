@@ -12,10 +12,12 @@ const crash = {
     setInterval(async () => {
       try {
         const response = await crash.loadLastPages();
-        if (response.length) {
-          crash.addToLastGames(response);
-          crash.checkSignals();
+        if (response.length == 0) {
+          return;
         }
+        
+        crash.addToLastGames(response);
+        crash.checkSignals();
 
         console.log({ response });
       } catch (err) {
@@ -204,7 +206,7 @@ const crash = {
       `);
     }
 
-    if (firstWinIndex = badWaveLength) {
+    if (firstWinIndex == badWaveLength) {
       const crashPoint = crash.lastGames[0];
       const martingaleInfo =
         martingaleLength > 1 ? `(Max ${martingaleLength} Martingale)` : "";

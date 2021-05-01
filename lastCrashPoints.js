@@ -27,7 +27,7 @@ const getPoint = (hash) => {
 const start = async () => {
   const [firstRecord] = await blaze_api.getCrashHistory();
   const lastServerSeed = firstRecord.server_seed;
-  const amount = 10500;
+  const amount = 3500;
   const chain = [lastServerSeed];
 
   for (let i = 0; i < amount; i++) {
