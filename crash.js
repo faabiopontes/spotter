@@ -183,7 +183,7 @@ const crash = {
     const secondWinIndex = crash.lastGames.findIndex((crashPoint, index) => {
       return crashPoint > 2 && index > firstWinIndex;
     });
-    const signalInfo = `**Sinal Bronze** :bell: (81% acerto)`;
+    const signalInfo = `<b>Sinal Bronze</b> :bell: (81% acerto)`;
     console.log({ firstWinIndex, secondWinIndex, badWaveLength });
 
     if (crash.badWave && firstWinIndex < badWaveLength) {
@@ -199,10 +199,10 @@ const crash = {
       }
 
       bot.sendMessage(`
-        ${signalInfo}\n
-        **${win ? "WIN :white_check_mark:" : "LOSS :red_circle"}** 
-        Sequencia de LOSS acabou após ${length} rodadas\n
-        Com Crash Point: **${crashPoint}x**
+        ${signalInfo} \n
+        <b>${win ? "WIN :white_check_mark:" : "LOSS :red_circle"}</b> \n
+        Sequencia de LOSS acabou após ${length} rodadas \n
+        Com Crash Point: <b>${crashPoint}x</b>
       `);
     }
 
@@ -213,8 +213,8 @@ const crash = {
       crash.badWave = true;
 
       bot.sendMessage(`
-        ${signalInfo}\n
-        Se após **${crashPoint}x** vier **LOSS** :black_circle:\n
+        ${signalInfo} \n
+        Se após <b>${crashPoint}x</b> vier <b>LOSS</b> :black_circle: \n
         Entrar na próxima ${martingaleInfo}
       `);
     }
