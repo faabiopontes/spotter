@@ -12,15 +12,15 @@ const crash = {
 
     setInterval(async () => {
       try {
-        // const response = await crash.loadLastPages();
-        // if (response.length == 0) {
-        //   return;
-        // }
+        const response = await crash.loadLastPages();
+        if (response.length == 0) {
+          return;
+        }
 
-        // crash.addToLastGames(response);
+        crash.addToLastGames(response);
         crash.checkSignals();
 
-        // console.log({ response, responseLength: response.length });
+        console.log({ response, responseLength: response.length });
       } catch (err) {
         console.log(`Erro em crash.start`);
         bot.sendMessageAdmin(`Erro em crash.start: ${err.message}`);
