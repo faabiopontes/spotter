@@ -205,7 +205,7 @@ const crash = {
       bot.sendMessage(
         `${signalInfo}\n<b>${
           win ? "WIN ✅" : "LOSS 🔴"
-        }</b>\nSequencia de LOSS acabou após ${length} rodadas\nCom Crash Point: <b>${crashPoint}x</b>`
+        }</b>\nSequencia abaixo de ${minCrashPoint.toFixed(2)}x acabou após ${length} rodadas\nCom Crash Point: <b>${crashPoint.toFixed(2)}x</b>`
       );
     }
 
@@ -214,13 +214,13 @@ const crash = {
     }
 
     if (firstWinIndex == badWaveLength - 1) {
-      const crashPoint = crash.lastGames[0] > 0 ? crash.lastGames[0] : 1.0;
+      const crashPoint = crash.lastGames[0] > 0 ? crash.lastGames[0] : 1;
       const martingaleInfo =
         martingaleLength > 1 ? `(Max ${martingaleLength} Martingale)` : "";
       const autoWithdrawInfo = `Auto-retirar: ${minCrashPoint - 0.01}`;
 
       bot.sendMessage(
-        `${signalInfo}\nSe após <b>${crashPoint}x</b> vier <b>LOSS</b> ⚫\nEntrar na próxima ${martingaleInfo}\n${autoWithdrawInfo}`
+        `${signalInfo}\nSe após <b>${crashPoint.toFixed(2)}x</b> vier <b>abaixo</b> de <b>${minCrashPoint.toFixed(2)}x</b>\nEntrar na próxima ${martingaleInfo}\n${autoWithdrawInfo}`
       );
     }
   },
