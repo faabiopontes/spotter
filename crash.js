@@ -1,6 +1,7 @@
 const blaze_api = require("./blaze_api");
 const db = require("./db");
 const bot = require("./bot");
+const signals = require("./signals");
 
 const crash = {
   lastSavedId: 0,
@@ -11,15 +12,15 @@ const crash = {
 
     setInterval(async () => {
       try {
-        const response = await crash.loadLastPages();
-        if (response.length == 0) {
-          return;
-        }
+        // const response = await crash.loadLastPages();
+        // if (response.length == 0) {
+        //   return;
+        // }
 
-        crash.addToLastGames(response);
+        // crash.addToLastGames(response);
         crash.checkSignals();
 
-        console.log({ response });
+        // console.log({ response, responseLength: response.length });
       } catch (err) {
         console.log(`Erro em crash.start`);
         bot.sendMessageAdmin(`Erro em crash.start: ${err.message}`);
@@ -170,17 +171,35 @@ const crash = {
       crash.lastGames.pop();
       crash.lastGames.unshift(element);
     });
-    debugger;
   },
+  /**
+   * BRONZE - BRONZE - B
+   * PRATA - SILVER - S
+   * OURO - GOLD - G
+   * PLATINA - PLATINUM - P
+   * DIAMANTE - DIAMOND - D
+   */
   checkSignals: () => {
-    crash.isBadWaveEqualOrAbove(3, 3, 2);
+    crash.isBadWaveEqualOrAbove(3, 3, 2, "B");
   },
+  signalsData: {},
   badWave: false,
-  isBadWaveEqualOrAbove: (
+  isBadWaveEqualOrAbove: async (
     badWaveLength,
-    martingaleLength = 1,
-    minCrashPoint
+    martingaleLength,
+    minCrashPoint,
+    signalType
   ) => {
+    const signalName = `${crash.isBadWaveEqualOrAbove.name}-${badWaveLength}-${martingaleLength}-${minCrashPoint}-${signalType}`;
+    if (typeof crash.signalsData[signalName] === "undefined") {
+      crash.signalsData[signalName] = await signals.getByName(signalName);
+
+      if (typeof crash.signalsData[signalName] === "undefined") {
+        await signals.create(signalName);
+        crash.signalsData[signalName] = await signals.getByName(signalName);
+      }
+    }
+    const signalData = crash.signalsData[signalName]; 
     const firstWinIndex = crash.lastGames.findIndex(
       (crashPoint) => crashPoint >= minCrashPoint
     );
@@ -202,10 +221,16 @@ const crash = {
         );
       }
 
+      await signals.addResult(signalData.id, win ? "WIN" : "LOSS");
+      
       bot.sendMessage(
         `${signalInfo}\n<b>${
           win ? "WIN ✅" : "LOSS 🔴"
-        }</b>\nSequencia abaixo de ${minCrashPoint.toFixed(2)}x acabou após ${length} rodadas\nCom Crash Point: <b>${crashPoint.toFixed(2)}x</b>`
+        }</b>\nSequencia abaixo de ${minCrashPoint.toFixed(
+          2
+        )}x acabou após ${length} rodadas\nCom Crash Point: <b>${crashPoint.toFixed(
+          2
+        )}x</b>`
       );
     }
 
@@ -220,7 +245,11 @@ const crash = {
       const autoWithdrawInfo = `Auto-retirar: ${minCrashPoint - 0.01}`;
 
       bot.sendMessage(
-        `${signalInfo}\nSe após <b>${crashPoint.toFixed(2)}x</b> vier <b>abaixo</b> de <b>${minCrashPoint.toFixed(2)}x</b>\nEntrar na próxima ${martingaleInfo}\n${autoWithdrawInfo}`
+        `${signalInfo}\nSe após <b>${crashPoint.toFixed(
+          2
+        )}x</b> vier <b>abaixo</b> de <b>${minCrashPoint.toFixed(
+          2
+        )}x</b>\nEntrar na próxima ${martingaleInfo}\n${autoWithdrawInfo}`
       );
     }
   },
