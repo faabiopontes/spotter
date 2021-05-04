@@ -211,7 +211,9 @@ const crash = {
       winRate =
         (signalData.win - signalData.loss) / (signalData.win + signalData.loss);
     }
-    const signalInfo = `<b>Sinal Bronze</b> 🔔 ${winRate ? `(${winRate}% acerto)` : ''}`;
+    const signalInfo = `<b>Sinal Bronze</b> 🔔 ${
+      winRate ? `(${winRate}% acerto)` : ""
+    }`;
     console.log({ firstWinIndex, secondWinIndex, badWaveLength });
 
     if (crash.badWave && firstWinIndex < badWaveLength) {
