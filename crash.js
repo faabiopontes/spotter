@@ -203,9 +203,8 @@ const crash = {
     });
     let winRate;
     if (signalData.win != 0) {
-      winRate = (signalData.win - signalData.loss);
-      winRate = winRate / (signalData.win + signalData.loss);
-      winRate = winRate * 100
+      let { win, loss } = signalData;
+      winRate = ((win / (win + loss)) * 100).toFixed(2);
     } else if (signalData.loss != 0) {
       winRate = 0;
     }
