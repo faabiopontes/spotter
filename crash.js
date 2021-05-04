@@ -199,14 +199,19 @@ const crash = {
         crash.signalsData[signalName] = await signals.getByName(signalName);
       }
     }
-    const signalData = crash.signalsData[signalName]; 
+    const signalData = crash.signalsData[signalName];
     const firstWinIndex = crash.lastGames.findIndex(
       (crashPoint) => crashPoint >= minCrashPoint
     );
     const secondWinIndex = crash.lastGames.findIndex((crashPoint, index) => {
       return crashPoint >= minCrashPoint && index > firstWinIndex;
     });
-    const signalInfo = `<b>Sinal Bronze</b> 🔔 (81% acerto)`;
+    let winRate;
+    if (signalData.win != 0) {
+      winRate =
+        (signalData.win - signalData.loss) / (signalData.win + signalData.loss);
+    }
+    const signalInfo = `<b>Sinal Bronze</b> 🔔 ${winRate ? `(${winRate}% acerto)` : ''}`;
     console.log({ firstWinIndex, secondWinIndex, badWaveLength });
 
     if (crash.badWave && firstWinIndex < badWaveLength) {
@@ -222,7 +227,7 @@ const crash = {
       }
 
       await signals.addResult(signalData.id, win ? "WIN" : "LOSS");
-      
+
       bot.sendMessage(
         `${signalInfo}\n<b>${
           win ? "WIN ✅" : "LOSS 🔴"
