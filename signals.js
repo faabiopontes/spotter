@@ -34,7 +34,7 @@ const signals = {
           signal_id,
           result
         ) VALUES (
-          ?
+          ?,
           ?
         )
       `,
