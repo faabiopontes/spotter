@@ -229,6 +229,11 @@ const crash = {
       }
 
       await signals.addResult(signalData.id, win ? "WIN" : "LOSS");
+      if (win) {
+        signalData.win++;
+      } else {
+        signalData.loss++;
+      }
 
       bot.sendMessage(
         `${signalInfo}\n<b>${
