@@ -208,9 +208,13 @@ const crash = {
     });
     let winRate;
     if (signalData.win != 0) {
-      winRate =
-        (signalData.win - signalData.loss) / (signalData.win + signalData.loss);
+      winRate = (signalData.win - signalData.loss);
+      winRate = winRate / (signalData.win + signalData.loss);
+      winRate = winRate * 100
+    } else if (signalData.loss != 0) {
+      winRate = 0;
     }
+
     const signalInfo = `<b>Sinal Bronze</b> 🔔 ${
       winRate ? `(${winRate}% acerto)` : ""
     }`;
