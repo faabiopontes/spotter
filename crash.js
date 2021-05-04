@@ -192,12 +192,7 @@ const crash = {
   ) => {
     const signalName = `${crash.isBadWaveEqualOrAbove.name}-${badWaveLength}-${martingaleLength}-${minCrashPoint}-${signalType}`;
     if (typeof crash.signalsData[signalName] === "undefined") {
-      crash.signalsData[signalName] = await signals.getByName(signalName);
-
-      if (typeof crash.signalsData[signalName] === "undefined") {
-        await signals.create(signalName);
-        crash.signalsData[signalName] = await signals.getByName(signalName);
-      }
+      crash.signalsData[signalName] = await signals.fetch(signalName);
     }
     const signalData = crash.signalsData[signalName];
     const firstWinIndex = crash.lastGames.findIndex(
@@ -269,7 +264,7 @@ const crash = {
       );
     }
   },
-  aboveCrashPointInTheLast: (crashPoint, last) => {},
+  sequenceOfWithoutCrashPointIn: (sequenceOf, minCrashPoint, WinIn) => {},
   getLastSavedId: async () => {
     const conn = await db.connect();
     const [rows] = await conn.query(`

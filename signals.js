@@ -1,6 +1,16 @@
 const db = require("./db");
 
 const signals = {
+  fetch: async (name) => {
+    let signalData = await signals.getByName(name);
+
+    if (typeof signalData !== "undefined") {
+      return signalData;
+    }
+
+    await signals.create(name);
+    return await signals.getByName(name);
+  },
   getByName: async (name) => {
     const conn = await db.connect();
     const [rows] = await conn.query(`
