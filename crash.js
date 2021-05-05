@@ -233,13 +233,13 @@ const crash = {
       }
 
       bot.sendMessage(
-        `${signalInfo}\n<b>${
+        `${signalInfo}: <b>${
           win ? "WIN ✅" : "LOSS 🔴"
         }</b>\nSequencia abaixo de ${minCrashPoint.toFixed(
           2
         )}x acabou após ${length} rodadas\nCom Crash Point: <b>${crashPoint.toFixed(
           2
-        )}x</b>\n${winRate}`
+        )}x</b> ${winRate}`
       );
     }
 
@@ -254,11 +254,11 @@ const crash = {
       const autoWithdrawInfo = `Auto-retirar: ${minCrashPoint - 0.01}`;
 
       bot.sendMessage(
-        `${signalInfo}\nSe após <b>${crashPoint.toFixed(
+        `${signalInfo}: Se após <b>${crashPoint.toFixed(
           2
         )}x</b> vier <b>abaixo</b> de <b>${minCrashPoint.toFixed(
           2
-        )}x</b>\nEntrar na próxima ${martingaleInfo}\n${autoWithdrawInfo}\n${winRate}`
+        )}x</b>\nEntrar na próxima ${martingaleInfo}\n${autoWithdrawInfo} ${winRate}`
       );
     }
   },
