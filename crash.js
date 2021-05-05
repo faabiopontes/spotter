@@ -208,10 +208,9 @@ const crash = {
     } else if (signalData.loss != 0) {
       winRate = 0;
     }
+    winRate = winRate ? `(${winRate}% acerto)` : "";
 
-    const signalInfo = `<b>Sinal Bronze</b> 🔔 ${
-      winRate ? `(${winRate}% acerto)` : ""
-    }`;
+    const signalInfo = '<b>Sinal Bronze</b> 🔔';
     console.log({ firstWinIndex, secondWinIndex, badWaveLength });
 
     if (crash.badWave && firstWinIndex < badWaveLength) {
@@ -240,7 +239,7 @@ const crash = {
           2
         )}x acabou após ${length} rodadas\nCom Crash Point: <b>${crashPoint.toFixed(
           2
-        )}x</b>`
+        )}x</b>\n${winRate}`
       );
     }
 
@@ -259,7 +258,7 @@ const crash = {
           2
         )}x</b> vier <b>abaixo</b> de <b>${minCrashPoint.toFixed(
           2
-        )}x</b>\nEntrar na próxima ${martingaleInfo}\n${autoWithdrawInfo}`
+        )}x</b>\nEntrar na próxima ${martingaleInfo}\n${autoWithdrawInfo}\n${winRate}`
       );
     }
   },
