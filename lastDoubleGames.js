@@ -1,4 +1,6 @@
-import crypto from "crypto";
+const crypto = require("crypto");
+const fs = require("fs");
+const blaze_api = require('./blaze_api');
 
 const TILES = [
   { number: 0, color: "white" },
@@ -18,35 +20,48 @@ const TILES = [
   { number: 4, color: "red" },
 ];
 
-const server_seed =
-  "d3fb08dc40e3e8a50f4d9c0367f12338746c60092d584c91c17ed1b80e8d46d9";
-const amount = 3000;
+const start = async () => {
+  const [firstRecord] = await blaze_api.getRouletteHistory();
+  const lastServerSeed = firstRecord.server_seed;
+  const amount = 1100;
+  const chain = [lastServerSeed];
 
-const chain = [this.state.server_seed];
+  for (let i = 0; i < amount; i++) {
+    chain.push(
+      crypto
+        .createHash("sha256")
+        .update(chain[chain.length - 1])
+        .digest("hex")
+    );
+  }
 
-for (let i = 0; i < this.state.amount; i++) {
-  chain.push(
-    crypto
-      .createHash("sha256")
-      .update(chain[chain.length - 1])
-      .digest("hex")
-  );
-}
+  // the hash of bitcoin block 570120 (https://medium.com/@blazedev/blaze-com-double-seeding-event-d3290ef13454)
+  const clientSeed =
+    "0000000000000000002aeb06364afc13b3c4d52767e8c91db8cdb39d8f71e8dd";
 
-// the hash of bitcoin block 570120 (https://medium.com/@blazedev/blaze-com-double-seeding-event-d3290ef13454)
-const clientSeed =
-  "0000000000000000002aeb06364afc13b3c4d52767e8c91db8cdb39d8f71e8dd";
+  const doubleMapped = chain.reverse().map((seed, index) => {
+    const hash = crypto
+      .createHmac("sha256", seed)
+      .update(clientSeed)
+      .digest("hex");
 
-const doubleMapped = chain.map((seed, index) => {
-  const hash = crypto
-    .createHmac("sha256", seed)
-    .update(clientSeed)
-    .digest("hex");
+    // roulette number from 0-15
+    const n = parseInt(hash, 16) % 15;
 
-  // roulette number from 0-15
-  const n = parseInt(hash, 16) % 15;
+    const tile = TILES.find((t) => t.number === n);
 
-  const tile = TILES.find((t) => t.number === n);
+    return `${index + 1};${tile.color}`;
+  });
+  const fileContent = doubleMapped.join("\n");
+  const fileName = "double_spins.csv";
 
-  return tile;
-});
+  fs.writeFile(fileName, fileContent, (err) => {
+    if (err) {
+      return console.error(err);
+    }
+
+    console.log(`Last ${amount} Double rounds written to ${fileName}`);
+  });
+};
+
+start();
