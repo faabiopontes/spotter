@@ -210,14 +210,15 @@ const crash = {
     }
     winRate = winRate ? `(${winRate}% acerto)` : "";
 
-    const signalInfo = '🔔';
+    const signalInfo = "🔔";
     console.log({ firstWinIndex, secondWinIndex, badWaveLength });
 
     if (crash.badWave && firstWinIndex < badWaveLength) {
       crash.badWave = false;
-      const crashPoint = crash.lastGames[firstWinIndex];
+      const crashPoint = crash.lastGames[firstWinIndex].toFixed(2);
       const length = secondWinIndex - firstWinIndex - 1;
       const win = badWaveLength + martingaleLength > length;
+      const winInfo = win ? "WIN ✅" : "LOSS 🔴";
 
       if (length < badWaveLength) {
         return bot.sendMessageAdmin(
@@ -233,13 +234,7 @@ const crash = {
       }
 
       bot.sendMessage(
-        `${signalInfo} - <b>${
-          win ? "WIN ✅" : "LOSS 🔴"
-        }</b>\nSequencia abaixo de ${minCrashPoint.toFixed(
-          2
-        )}x acabou após ${length} rodadas\nCom Crash Point: <b>${crashPoint.toFixed(
-          2
-        )}x</b> ${winRate}`
+        `${signalInfo} - <b>${winInfo}</b> ${winRate}\nSequencia acabou após <b>${length}</b> rodadas\nCrash Point: <b>${crashPoint}x</b>`
       );
     }
 
