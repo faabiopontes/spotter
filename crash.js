@@ -210,7 +210,7 @@ const crash = {
     }
     winRate = winRate ? `(${winRate}% acerto)` : "";
 
-    const signalInfo = '<b>Sinal Bronze</b> 🔔';
+    const signalInfo = '🔔';
     console.log({ firstWinIndex, secondWinIndex, badWaveLength });
 
     if (crash.badWave && firstWinIndex < badWaveLength) {
