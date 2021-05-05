@@ -233,7 +233,7 @@ const crash = {
       }
 
       bot.sendMessage(
-        `${signalInfo}: <b>${
+        `${signalInfo} - <b>${
           win ? "WIN ✅" : "LOSS 🔴"
         }</b>\nSequencia abaixo de ${minCrashPoint.toFixed(
           2
@@ -254,7 +254,7 @@ const crash = {
       const autoWithdrawInfo = `Auto-retirar: ${minCrashPoint - 0.01}`;
 
       bot.sendMessage(
-        `${signalInfo}: Se após <b>${crashPoint.toFixed(
+        `${signalInfo} - Se após <b>${crashPoint.toFixed(
           2
         )}x</b> vier <b>abaixo</b> de <b>${minCrashPoint.toFixed(
           2
