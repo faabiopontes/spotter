@@ -4,9 +4,9 @@
   "version": "2.0.0",
   "tasks": [
     {
-      "label": "Save Last Crash Points to File",
+      "label": "Save Last Crash Games to File",
       "type": "shell",
-      "command": "node lastCrashPoints.js"
+      "command": "node lastCrashGames.js"
     },
     {
       "label": "Start",

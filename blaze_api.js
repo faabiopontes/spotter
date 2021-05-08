@@ -5,6 +5,10 @@ const blaze_api = {
   crashClientSeed:
     "0000000000000000000415ebb64b0d51ccee0bb55826e43846e5bea777d91966",
   parseResponse: async (response) => {
+    if (response.status !== 200) {
+      throw new Error(`${response.status} - ${response.statusText}`);
+    }
+    
     const text = await response.text();
     let json = {};
 
@@ -26,7 +30,7 @@ const blaze_api = {
       .digest("hex");
 
     const point = blaze_api.getPoint(hash);
-    
+
     return point;
   },
   getRouletteLastId: async () => {
@@ -98,7 +102,7 @@ const blaze_api = {
     const point = (Math.floor((100 * e - h) / (e - h)) / 100).toFixed(2);
 
     return point;
-  }
+  },
 };
 
 module.exports = blaze_api;

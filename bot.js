@@ -17,4 +17,8 @@ const sendMessageAdmin = (message) => {
   bot.sendMessage(adminChatId, message, { parse_mode: 'HTML'});
 };
 
+// console.log({ dirName: __dirname });
+// bot.sendMessage(adminChatId, 'Quando vem um loss depois de 15 wins');
+// bot.sendVideoNote(adminChatId, './assets/videos/crying_money.mp4');
+
 module.exports = { sendMessage, sendMessageAdmin };

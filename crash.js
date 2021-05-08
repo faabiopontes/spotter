@@ -6,28 +6,33 @@ const signals = require("./signals");
 const crash = {
   lastSavedId: 0,
   lastGames: [],
+  tick: async () => {
+    const response = await crash.loadLastPages();
+    const responseLength = response.length;
+
+    if (!responseLength) {
+      return;
+    }
+
+    crash.addToLastGames(response);
+    crash.checkSignals();
+
+    console.log({ response, responseLength });
+  },
   start: async () => {
     const crashInterval = process.env.CRASH_INTERVAL || 100000;
     crash.lastGames = await crash.loadLastGamesFromDB(100);
+    // return console.log({ dirName: __dirname });
 
     setInterval(async () => {
       try {
-        const response = await crash.loadLastPages();
-        if (response.length == 0) {
-          return;
-        }
-
-        crash.addToLastGames(response);
-        crash.checkSignals();
-
-        console.log({ response, responseLength: response.length });
+        await crash.tick();
       } catch (err) {
         console.log(`Erro em crash.start`);
         bot.sendMessageAdmin(`Erro em crash.start: ${err.message}`);
         console.log(err);
         setTimeout(async () => {
-          const response = await crash.loadLastPages();
-          console.log({ response });
+          await crash.tick();
         }, 5000);
       }
     }, crashInterval);
