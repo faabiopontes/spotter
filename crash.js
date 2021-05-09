@@ -101,7 +101,7 @@ const crash = {
     const [firstRow] = spotResponse;
     if (firstRow.id !== crash.lastSavedId) {
       crash.lastSavedId = firstRow.id;
-      return crash.loadHistory();
+      return crash.loadHistory(spotResponse);
     }
   },
   loadHistory: async (blazeResponse) => {
@@ -137,12 +137,13 @@ const crash = {
     for (let page = 1; page <= 10; page++) {
       const blazeResponse = await blaze_api.getCrashHistory(page);
 
+      const pendingHistory = await crash.loadHistory(blazeResponse);
+
       if (page == 1) {
         const [firstRow] = blazeResponse;
         crash.lastSavedId = firstRow.id;
+        inserted = pendingHistory;
       }
-
-      const pendingHistory = await crash.loadHistory(blazeResponse);
 
       if (pendingHistory.length < 8) {
         break;
