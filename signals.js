@@ -11,6 +11,13 @@ const signals = {
     await signals.create(name);
     return await signals.getByName(name);
   },
+  getEmojiFromType: (letter) => {
+    switch (letter) {
+      case 'P': return '🔭';
+      case 'B:': return '🔔';
+      default: return '🔔';
+    }
+  },
   getByName: async (name) => {
     const conn = await db.connect();
     const [rows] = await conn.query(`

@@ -202,7 +202,6 @@ const crash = {
     crash.isBadWaveEqualOrAbove(3, 3, 2, "B");
   },
   signalsData: {},
-  badWave: false,
   isBadWaveEqualOrAbove: async (
     badWaveLength,
     martingaleLength,
@@ -212,8 +211,10 @@ const crash = {
     const signalName = `${crash.isBadWaveEqualOrAbove.name}-${badWaveLength}-${martingaleLength}-${minCrashPoint}-${signalType}`;
     if (typeof crash.signalsData[signalName] === "undefined") {
       crash.signalsData[signalName] = await signals.fetch(signalName);
+      crash.signalsData[signalName].badWave = false;
     }
     const signalData = crash.signalsData[signalName];
+    const signalEmoji = signals.getEmojiFromType(signalType);
     const firstWinIndex = crash.lastGames.findIndex(
       (crashPoint) => crashPoint >= minCrashPoint
     );
@@ -228,12 +229,10 @@ const crash = {
       winRate = 0;
     }
     winRate = winRate ? `(${winRate}% acerto)` : "";
+    console.log({ firstWinIndex, secondWinIndex, badWaveLength, badWave: signalData.badWave });
 
-    const signalInfo = "🔔";
-    console.log({ firstWinIndex, secondWinIndex, badWaveLength });
-
-    if (crash.badWave && firstWinIndex < badWaveLength) {
-      crash.badWave = false;
+    if (signalData.badWave && firstWinIndex < badWaveLength) {
+      signalData.badWave = false;
       const crashPoint = crash.lastGames[firstWinIndex].toFixed(2);
       const length = secondWinIndex - firstWinIndex - 1;
       const win = badWaveLength + martingaleLength > length;
@@ -253,12 +252,12 @@ const crash = {
       }
 
       bot.sendMessage(
-        `${signalInfo} - <b>${winInfo}</b> ${winRate}\nSequencia acabou após <b>${length}</b> rodadas\nCrash Point: <b>${crashPoint}x</b>`
+        `${signalEmoji} - <b>${winInfo}</b> ${winRate}\nSequencia acabou após <b>${length}</b> rodadas\nCrash Point: <b>${crashPoint}x</b>`
       );
     }
 
     if (firstWinIndex >= badWaveLength) {
-      crash.badWave = true;
+      signalData.badWave = true;
     }
 
     if (firstWinIndex == badWaveLength - 1) {
@@ -268,7 +267,7 @@ const crash = {
       const autoWithdrawInfo = `Auto-retirar: ${minCrashPoint - 0.01}`;
 
       bot.sendMessage(
-        `${signalInfo} - Se após <b>${crashPoint.toFixed(
+        `${signalEmoji} - Se após <b>${crashPoint.toFixed(
           2
         )}x</b> vier <b>abaixo</b> de <b>${minCrashPoint.toFixed(
           2
