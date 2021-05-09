@@ -7,6 +7,7 @@ const path = require("path");
 const app = express();
 const http = require("http").Server(app);
 const io = require("socket.io")(http);
+const cors = require("cors");
 
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "assets")));
@@ -41,12 +42,14 @@ const port = process.env.PORT || 3000;
 const roulette = require("./roulette");
 const crash = require("./crash");
 const subscriptions = require("./subscriptions");
+const spot = require("./spot");
 
 http.listen(port, async () => {
   console.log(`Listening on *:${port}`);
 });
 
 crash.start();
+// spot.sendLastPagesToServer();
 
 const publicVapidKey = process.env.PUBLIC_VAPID_KEY;
 const privateVapidKey = process.env.PRIVATE_VAPID_KEY;
@@ -102,11 +105,15 @@ app.post("/roulette/latest", (req, res) => {
   res.send("ok");
 });
 
-app.post("/crash/latest", (req, res) => {
-  const { id, crash_point } = req.body;
+app.post("/crash/spot", cors(), async (req, res) => {
+  const spotResponse = req.body;
+  const response = await crash.loadFromSpot(spotResponse);
 
-  crash.insert(id, crash_point);
-  res.send("ok");
+  if (response.length) {
+    await crash.tock(response);
+  }
+
+  res.json(response);
 });
 
 app.post("/roulette/insert", async (req, res) => {

@@ -8,21 +8,25 @@ const crash = {
   lastGames: [],
   tick: async () => {
     const response = await crash.loadLastPages();
-    const responseLength = response.length;
 
-    if (!responseLength) {
-      return;
+    if (response.length) {
+      crash.tock(response);
     }
 
+  },
+  tock: async (response) => {
     crash.addToLastGames(response);
     crash.checkSignals();
 
-    console.log({ response, responseLength });
+    console.log({ response, responseLength: response.length });
+  },
+  spot: async (response) => {
+    console.log("spot");
+    console.log({ response });
   },
   start: async () => {
     const crashInterval = process.env.CRASH_INTERVAL || 100000;
     crash.lastGames = await crash.loadLastGamesFromDB(100);
-    // return console.log({ dirName: __dirname });
 
     setInterval(async () => {
       try {
@@ -93,48 +97,57 @@ const crash = {
 
     return inserted;
   },
+  loadFromSpot: async (spotResponse) => {
+    const [firstRow] = spotResponse;
+    if (firstRow.id !== crash.lastSavedId) {
+      crash.lastSavedId = firstRow.id;
+      return crash.loadHistory();
+    }
+  },
+  loadHistory: async (blazeResponse) => {
+    let inserted = [];
+
+    let crashHistory = [];
+    blazeResponse.forEach((row) => {
+      crashHistory.push({ id: row.id, createdAt: row.created_at });
+      row.crash_point = blaze_api.getCrashPointFromServerSeed(row.server_seed);
+    });
+    const pendingIds = await crash.getPendingIds(crashHistory);
+    const pendingHistory = blazeResponse.filter(
+      (history) => pendingIds.indexOf(history.id) !== -1
+    );
+
+    for (const history of pendingHistory) {
+      const { id, crash_point, created_at } = history;
+
+      try {
+        await crash.insert(id, crash_point, created_at);
+      } catch (err) {
+        console.log("Error at crash.loadRecent");
+        console.log(err);
+      }
+
+      inserted.push(parseFloat(crash_point));
+    }
+    return inserted;
+  },
   loadLastPages: async () => {
     let inserted = [];
-    let lastSavedId = 0;
 
     for (let page = 1; page <= 10; page++) {
       const blazeResponse = await blaze_api.getCrashHistory(page);
-      let crashHistory = [];
 
-      blazeResponse.forEach((row) => {
-        crashHistory.push({ id: row.id, createdAt: row.created_at });
-        row.crash_point = blaze_api.getCrashPointFromServerSeed(
-          row.server_seed
-        );
-      });
-      const pendingIds = await crash.getPendingIds(crashHistory);
-      const pendingHistory = blazeResponse.filter(
-        (history) => pendingIds.indexOf(history.id) !== -1
-      );
-
-      for (const history of pendingHistory) {
-        const { id, crash_point, created_at } = history;
-
-        try {
-          await crash.insert(id, crash_point, created_at);
-        } catch (err) {
-          console.log("Error at crash.loadRecent");
-          console.log(err);
-        }
-
-        if (lastSavedId == 0) {
-          lastSavedId = id;
-        }
-
-        inserted.push(parseFloat(crash_point));
+      if (page == 1) {
+        const [firstRow] = blazeResponse;
+        crash.lastSavedId = firstRow.id;
       }
+
+      const pendingHistory = await crash.loadHistory(blazeResponse);
 
       if (pendingHistory.length < 8) {
         break;
       }
     }
-
-    crash.lastSavedId = lastSavedId;
 
     return inserted;
   },
@@ -243,7 +256,7 @@ const crash = {
       );
     }
 
-    if (firstWinIndex == badWaveLength) {
+    if (firstWinIndex >= badWaveLength) {
       crash.badWave = true;
     }
 
