@@ -234,8 +234,8 @@ const crash = {
     if (signalData.badWave && firstWinIndex < badWaveLength) {
       signalData.badWave = false;
       const crashPoint = crash.lastGames[firstWinIndex].toFixed(2);
-      const length = secondWinIndex - firstWinIndex;
-      const win = badWaveLength + martingaleLength > length;
+      const length = secondWinIndex - firstWinIndex - 1;
+      const win = badWaveLength + martingaleLength >= length;
       const winInfo = win ? "WIN ✅" : "LOSS 🔴";
 
       if (length < badWaveLength) {
