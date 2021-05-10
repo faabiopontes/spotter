@@ -199,7 +199,7 @@ const crash = {
    * DIAMANTE - DIAMOND - D
    */
   checkSignals: () => {
-    crash.isBadWaveEqualOrAbove(3, 3, 2, "B");
+    crash.isBadWaveEqualOrAbove(3, 2, 2, "B");
   },
   signalsData: {},
   isBadWaveEqualOrAbove: async (
@@ -234,7 +234,7 @@ const crash = {
     if (signalData.badWave && firstWinIndex < badWaveLength) {
       signalData.badWave = false;
       const crashPoint = crash.lastGames[firstWinIndex].toFixed(2);
-      const length = secondWinIndex - firstWinIndex - 1;
+      const length = secondWinIndex - firstWinIndex;
       const win = badWaveLength + martingaleLength > length;
       const winInfo = win ? "WIN ✅" : "LOSS 🔴";
 
