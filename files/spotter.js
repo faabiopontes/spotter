@@ -17,10 +17,11 @@ const notify = async (message) => {
 
 const crash = {
   badWave: 0,
-  badWaveNotificationTrigger: 5,
+  badWaveNotificationTrigger: 3,
   crashPoints: [],
+  extraInfo: [],
   sentNotifications: [],
-  spot: async () => {
+  spot: () => {
     const targetNode = document.querySelector(".crash-previous .entries");
     const config = { childList: true, subtree: true };
 
@@ -32,12 +33,19 @@ const crash = {
             -1
           );
           const floatCrashPoint = parseFloat(crash_point);
+          const extraInfo = {
+            betsNumber: document.querySelector('.crash-bottom .totals .left span').innerHTML,
+            betsValue: document.querySelector('.crash-bottom .totals .right span').innerHTML,
+            crashPoint: floatCrashPoint,
+            badWave: crash.badWave, 
+          };
           crash.crashPoints.push(floatCrashPoint);
+          crash.extraInfo.push(extraInfo);
 
-          if (floatCrashPoint > 10) {
-            const message = `ATENÇÃO: Crash Point: ${floatCrashPoint}`
-            notify(message);
-          }
+          // if (floatCrashPoint > 10) {
+          //   const message = `ATENÇÃO: Crash Point: ${floatCrashPoint}`
+          //   notify(message);
+          // }
 
           if (floatCrashPoint < 2) {
             crash.badWave++;

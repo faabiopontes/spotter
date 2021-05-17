@@ -251,9 +251,13 @@ const crash = {
         signalData.loss++;
       }
 
-      bot.sendMessage(
-        `${signalEmoji} - <b>${winInfo}</b> ${winRate}\nSequencia acabou após <b>${length}</b> rodadas\nCrash Point: <b>${crashPoint}x</b>`
-      );
+      const message = `${signalEmoji} - <b>${winInfo}</b> ${winRate}\nSequencia acabou após <b>${length}</b> rodadas\nCrash Point: <b>${crashPoint}x</b>`;
+
+      bot.sendMessage(message);
+      
+      if (!win) {
+        bot.sendMessageRodris(message);
+      }
     }
 
     if (firstWinIndex >= badWaveLength) {
