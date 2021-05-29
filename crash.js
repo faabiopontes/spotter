@@ -214,6 +214,8 @@ const crash = {
       crash.signalsData[signalName].badWave = false;
     }
     const signalData = crash.signalsData[signalName];
+    const { lastResult } = signalData;
+
     const signalEmoji = signals.getEmojiFromType(signalType);
     const firstWinIndex = crash.lastGames.findIndex(
       (crashPoint) => crashPoint >= minCrashPoint
@@ -229,32 +231,56 @@ const crash = {
       winRate = 0;
     }
     winRate = winRate ? `(${winRate}% acerto)` : "";
-    console.log({ firstWinIndex, secondWinIndex, badWaveLength, badWave: signalData.badWave });
+    console.log({
+      firstWinIndex,
+      secondWinIndex,
+      badWaveLength,
+      badWave: signalData.badWave,
+    });
 
     if (signalData.badWave && firstWinIndex < badWaveLength) {
       signalData.badWave = false;
-      const crashPoint = crash.lastGames[firstWinIndex].toFixed(2);
+      const crashPoint = crash.lastGames[firstWinIndex];
       const length = secondWinIndex - firstWinIndex - 1;
       const win = badWaveLength + martingaleLength >= length;
-      const winInfo = win ? "WIN ✅" : "LOSS 🔴";
+      const winAt = length - badWaveLength;
+      const lastResult = win ? "WIN" : "LOSS";
+      const resultInfo = `${lastResult} ${win ? "✅" : "🔴"}`;
+
+      console.log({
+        badWaveLength,
+        martingaleLength,
+        length,
+        winAt
+      });
 
       if (length < badWaveLength) {
         return bot.sendMessageAdmin(
           "Algo errado não está certo, verificar logs desse horário"
         );
       }
+      
+      let sequence;
+      if (signalData.lastResult == lastResult) {
+        sequence = signalData.sequence + 1;
+      } else {
+        signalData.lastResult = lastResult;
+        sequence = 1;
+      }
+      
+      signalData.sequence = sequence;
 
-      await signals.addResult(signalData.id, win ? "WIN" : "LOSS");
+      await signals.addResult(signalData.id, lastResult, sequence, crashPoint, winAt);
       if (win) {
         signalData.win++;
       } else {
         signalData.loss++;
       }
 
-      const message = `${signalEmoji} - <b>${winInfo}</b> ${winRate}\nSequencia acabou após <b>${length}</b> rodadas\nCrash Point: <b>${crashPoint}x</b>`;
+      const message = `${signalEmoji} - <b>${resultInfo}</b> ${winRate}\nSequencia acabou após <b>${length}</b> rodadas\nCrash Point: <b>${crashPoint}x</b>`;
 
       bot.sendMessage(message);
-      
+
       if (!win) {
         bot.sendMessageRodris(message);
       }
@@ -269,16 +295,21 @@ const crash = {
       const martingaleInfo =
         martingaleLength > 1 ? `(Max ${martingaleLength} Martingale)` : "";
       const autoWithdrawInfo = `Auto-retirar: ${minCrashPoint - 0.01}`;
+      const message = `${signalEmoji} - Se após <b>${crashPoint}x</b> vier <b>abaixo</b> de <b>${minCrashPoint}x</b>\nEntrar na próxima ${martingaleInfo}\n${autoWithdrawInfo} ${winRate}`;
 
-      bot.sendMessage(
-        `${signalEmoji} - Se após <b>${crashPoint.toFixed(
-          2
-        )}x</b> vier <b>abaixo</b> de <b>${minCrashPoint.toFixed(
-          2
-        )}x</b>\nEntrar na próxima ${martingaleInfo}\n${autoWithdrawInfo} ${winRate}`
-      );
+      bot.sendMessage(message);
+
+      if (lastResult !== "WIN") {
+        bot.sendMessageRodris(message);
+      }
     }
   },
+  crashAboveFollowedByBelowThan: (
+    crashAbove,
+    crashBelow,
+    minCrashPoint,
+    martingaleLength
+  ) => {},
   sequenceOfWithoutCrashPointIn: (sequenceOf, minCrashPoint, WinIn) => {},
   getLastSavedId: async () => {
     const conn = await db.connect();

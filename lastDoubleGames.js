@@ -23,7 +23,7 @@ const TILES = [
 const start = async () => {
   const [firstRecord] = await blaze_api.getRouletteHistory();
   const lastServerSeed = firstRecord.server_seed;
-  const amount = 30000;
+  const amount = 3000;
   const chain = [lastServerSeed];
 
   for (let i = 0; i < amount; i++) {

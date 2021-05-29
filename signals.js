@@ -2,10 +2,14 @@ const db = require("./db");
 
 const signals = {
   fetch: async (name) => {
-    let signalData = await signals.getByName(name);
+    let signal = await signals.getByName(name);
 
-    if (typeof signalData !== "undefined") {
-      return signalData;
+    if (typeof signal !== "undefined") {
+      const { result, sequence } = await signals.getLastResult(signal.id);
+      signal.lastResult = result;
+      signal.sequence = sequence;
+      
+      return signal;
     }
 
     await signals.create(name);
@@ -13,19 +17,25 @@ const signals = {
   },
   getEmojiFromType: (letter) => {
     switch (letter) {
-      case 'P': return '🔭';
-      case 'B:': return '🔔';
-      default: return '🔔';
+      case "P":
+        return "🔭";
+      case "B":
+        return "🔔";
+      default:
+        return "🔔";
     }
   },
   getByName: async (name) => {
     const conn = await db.connect();
-    const [rows] = await conn.query(`
+    const [rows] = await conn.query(
+      `
       SELECT id, name, win, loss
       FROM signals
       WHERE name = ?
+      LIMIT 0, 1
     `,
-    [name]);
+      [name]
+    );
     const [row] = rows;
 
     return row;
@@ -43,21 +53,27 @@ const signals = {
       [name]
     );
   },
-  addResult: async (signalId, result) => {
+  addResult: async (signalId, result, sequence, crashPoint, winAt) => {
     const conn = await db.connect();
     await conn.query(
       `
         INSERT INTO signals_history(
           signal_id,
-          result
+          result,
+          sequence,
+          crash_point,
+          win_at
         ) VALUES (
+          ?,
+          ?,
+          ?,
           ?,
           ?
         )
       `,
-      [signalId, result]
+      [signalId, result, sequence, crashPoint, winAt]
     );
-    const resultField = result === 'WIN' ? 'win' : 'loss';
+    const resultField = result === "WIN" ? "win" : "loss";
     await conn.query(
       `
         UPDATE signals SET 
@@ -67,7 +83,28 @@ const signals = {
       `,
       [signalId]
     );
-  }
+  },
+  getLastResult: async (signalId) => {
+    const conn = await db.connect();
+    const [rows] = await conn.query(
+      `
+        SELECT
+          result,
+          crash_point,
+          sequence,
+          win_at
+        FROM
+          signals_history
+        WHERE signal_id = ?
+        ORDER BY id DESC
+        LIMIT 0, 1
+      `,
+      [signalId]
+    );
+    const [row] = rows;
+
+    return row;
+  },
 };
 
 module.exports = signals;

@@ -9,6 +9,11 @@
       "command": "node lastCrashGames.js"
     },
     {
+      "label": "Save Last Double Games to File",
+      "type": "shell",
+      "command": "node lastDoubleGames.js"
+    },
+    {
       "label": "Start",
       "type": "shell",
       "command": "yarn start"
