@@ -243,7 +243,7 @@ const crash = {
       const crashPoint = crash.lastGames[firstWinIndex];
       const length = secondWinIndex - firstWinIndex - 1;
       const win = badWaveLength + martingaleLength >= length;
-      const winAt = length - badWaveLength;
+      const winAt = length - badWaveLength + 1;
       const lastResult = win ? "WIN" : "LOSS";
       const resultInfo = `${lastResult} ${win ? "✅" : "🔴"}`;
 
