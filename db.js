@@ -16,6 +16,17 @@ async function connect() {
   const connection = await mysql.createConnection(options);
   console.log("Connected to MySQL");
 
+  connection.on('error', err => {
+    console.log(`db: connection error': ${err}`);
+    try {
+      global.connection.destroy();
+    } catch (destroyErr) {
+      console.log(`db: error destroying connection: ${destroyErr}`);
+    } finally {
+      global.connection = undefined;
+    }
+  });
+
   global.connection = connection;
   return connection;
 }
