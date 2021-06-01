@@ -267,6 +267,14 @@ const crash = {
           "Algo errado não está certo, verificar logs desse horário"
         );
       }
+
+      const message = `${signalEmoji} - <b>${resultInfo}</b> ${winRate}\nSequencia acabou após <b>${length}</b> rodadas\nCrash Point: <b>${crashPoint}x</b>`;
+
+      bot.sendMessage(message);
+
+      if (signalData.lastResult === "LOSS") {
+        bot.sendMessageRodris(message);
+      }
       
       let sequence;
       if (signalData.lastResult == lastResult) {
@@ -284,14 +292,6 @@ const crash = {
       } else {
         signalData.loss++;
       }
-
-      const message = `${signalEmoji} - <b>${resultInfo}</b> ${winRate}\nSequencia acabou após <b>${length}</b> rodadas\nCrash Point: <b>${crashPoint}x</b>`;
-
-      bot.sendMessage(message);
-
-      if (!win) {
-        bot.sendMessageRodris(message);
-      }
     }
 
     if (firstWinIndex >= badWaveLength) {
@@ -308,7 +308,7 @@ const crash = {
 
       bot.sendMessage(message);
 
-      if (lastResult !== "WIN") {
+      if (signalData.lastResult === "LOSS") {
         bot.sendMessageRodris(message);
       }
     }
