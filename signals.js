@@ -5,10 +5,10 @@ const signals = {
     let signal = await signals.getByName(name);
 
     if (typeof signal !== "undefined") {
-      const { result, sequence } = await signals.getLastResult(signal.id);
-      signal.lastResult = result;
-      signal.sequence = sequence;
-      
+      const lastResult = await signals.getLastResult(signal.id);
+      signal.lastResult = lastResult ? lastResult.result : undefined;
+      signal.sequence = lastResult ? lastResult.sequence : undefined;
+
       return signal;
     }
 
@@ -21,6 +21,10 @@ const signals = {
         return "🔭";
       case "B":
         return "🔔";
+      case "S":
+        return "🥈";
+      case "G":
+        return "🥇";
       default:
         return "🔔";
     }

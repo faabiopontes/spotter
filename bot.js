@@ -6,6 +6,7 @@ const groupSignalsId = process.env.TELEGRAM_GROUP_SIGNALS_ID;
 const groupChatId = process.env.TELEGRAM_GROUP_CHAT_ID;
 const adminChatId = process.env.TELEGRAM_ADMIN_ID;
 const rodrisChatId = process.env.TELEGRAM_RODRIS_ID;
+const vipChatId = process.env.TELEGRAM_GROUP_VIP_ID;
 
 const bot = new TelegramBot(token, { polling: polling ? true : false });
 
@@ -13,6 +14,11 @@ const sendMessage = (message) => {
   console.log(`bot.sendMessage: ${message}`);
   bot.sendMessage(groupSignalsId, message, { parse_mode: "HTML" });
   bot.sendMessage(groupChatId, message, { parse_mode: "HTML" });
+};
+
+const sendMessageVIP = (message) => {
+  console.log(`bot.sendMessageVIP: ${message}`);
+  bot.sendMessage(vipChatId, message, { parse_mode: "HTML" });
 };
 
 const sendMessageGroupChat = (message) => {
@@ -41,4 +47,5 @@ module.exports = {
   sendMessageGroupChat,
   sendMessageGroupSignals,
   sendMessageRodris,
+  sendMessageVIP,
 };
