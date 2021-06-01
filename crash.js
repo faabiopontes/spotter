@@ -127,7 +127,10 @@ const crash = {
         console.log(err);
       }
 
-      inserted.push(parseFloat(crash_point));
+      inserted.push({
+        id,
+        crashPoint: parseFloat(crash_point)
+      });
     }
     return inserted;
   },
@@ -177,13 +180,18 @@ const crash = {
   loadLastGamesFromDB: async (limit = 100) => {
     const conn = await db.connect();
     const query = `
-      SELECT crash_point
+      SELECT
+        id,
+        crash_point
       FROM crash_history
       ORDER BY created_at DESC
       LIMIT 0, ${limit}
     `;
     const [rows] = await conn.query(query);
-    return rows.map((row) => parseFloat(row.crash_point));
+    return rows.map(({ id, crash_point }) => ({
+      id,
+      crashPoint: parseFloat(crash_point),
+    }))
   },
   addToLastGames: (elements) => {
     elements.reverse().forEach((element) => {
@@ -218,10 +226,10 @@ const crash = {
 
     const signalEmoji = signals.getEmojiFromType(signalType);
     const firstWinIndex = crash.lastGames.findIndex(
-      (crashPoint) => crashPoint >= minCrashPoint
+      (game) => game.crashPoint >= minCrashPoint
     );
-    const secondWinIndex = crash.lastGames.findIndex((crashPoint, index) => {
-      return crashPoint >= minCrashPoint && index > firstWinIndex;
+    const secondWinIndex = crash.lastGames.findIndex((game, index) => {
+      return game.crashPoint >= minCrashPoint && index > firstWinIndex;
     });
     let winRate;
     if (signalData.win != 0) {
@@ -240,7 +248,7 @@ const crash = {
 
     if (signalData.badWave && firstWinIndex < badWaveLength) {
       signalData.badWave = false;
-      const crashPoint = crash.lastGames[firstWinIndex];
+      const crashPoint = crash.lastGames[firstWinIndex].crashPoint;
       const length = secondWinIndex - firstWinIndex - 1;
       const win = badWaveLength + martingaleLength >= length;
       const winAt = length - badWaveLength + 1;
@@ -291,7 +299,8 @@ const crash = {
     }
 
     if (firstWinIndex == badWaveLength - 1) {
-      const crashPoint = crash.lastGames[0] > 0 ? crash.lastGames[0] : 1;
+      const lastCrashPoint = crash.lastGames[0].crashPoint;
+      const crashPoint = lastCrashPoint > 0 ? lastCrashPoint : 1;
       const martingaleInfo =
         martingaleLength > 1 ? `(Max ${martingaleLength} Martingale)` : "";
       const autoWithdrawInfo = `Auto-retirar: ${minCrashPoint - 0.01}`;
