@@ -207,7 +207,7 @@ const crash = {
    */
   checkSignals: () => {
     crash.isBadWaveEqualOrAbove(3, 2, 2, "B");
-    crash.crashAboveFollowedByBelowThan(2, 1.11, 5, 4, "G");
+    crash.crashAboveFollowedByBelowThan(2, 1.13, 5, 4, "G");
   },
   signals: {},
   isBadWaveEqualOrAbove: async (
@@ -347,7 +347,7 @@ const crash = {
         firstIndexAbove,
       });
 
-      if (triggerIndex < entries) {
+      if (triggerIndex < entries && firstIndexAbove > triggerIndex) {
         return signal;
       }
 
@@ -355,6 +355,9 @@ const crash = {
       const lastResult = win ? "WIN" : "LOSS";
       const winAt = win ? triggerIndex - firstIndexAbove : -1;
       const resultInfo = `${lastResult} ${win ? "✅" : "🔴"}`;
+
+      // TODO: signals.getWinRate(signal.id);
+      // START
       let winRate;
       if (signal.win != 0) {
         let { win, loss } = signal;
@@ -363,6 +366,8 @@ const crash = {
         winRate = 0;
       }
       winRate = winRate ? `(${winRate}% acerto)` : "";
+      // return winRate
+      // END
 
       let msgCrashPoint = 1;
       if (lastResult === "LOSS") {
@@ -380,6 +385,8 @@ const crash = {
       const message = `${emoji} - <b>${resultInfo}</b> ${winRate}\nCrash Point: <b>${msgCrashPoint}x</b>`;
       bot.sendMessageVIP(message);
 
+      // TODO: signals.addResult(signal.id, lastResult, (signal.id);
+      // START
       let sequence;
       if (signal.lastResult == lastResult) {
         sequence = signal.sequence + 1;
@@ -405,6 +412,8 @@ const crash = {
 
       signal.triggerId = "";
       signal.triggered = false;
+      // return signal
+      // END
     }
 
     if (!signal.triggered) {
@@ -466,12 +475,18 @@ const crash = {
       FROM crash_history
       WHERE created_at in ('${parsedCreatedAts.join("','")}')
     `;
-    const [rows] = await conn.query(query);
-    const existingIds = rows.map((row) => row.id);
-    const pendingIds = history.filter(
-      ({ id }) => existingIds.indexOf(id) === -1
-    );
-    return pendingIds.map((pending) => pending.id);
+    try {
+      const [rows] = await conn.query(query);
+      const existingIds = rows.map((row) => row.id);
+      const pendingIds = history.filter(
+        ({ id }) => existingIds.indexOf(id) === -1
+      );
+      return pendingIds.map((pending) => pending.id);
+    } catch (err) {
+      bot.sendMessageAdmin(`crash.getPendingIds error: ${err.message}`);
+      await db.reconnect();
+      throw new Error(err.message);
+    }
   },
   parseCreatedAtToUnixTime: (createdAt) => {
     let date;
@@ -507,7 +522,7 @@ const crash = {
     const dateTime = crash.parseCreatedAtToDateTime(createdAt);
 
     const conn = await db.connect();
-    await conn.query(
+    await conn.execute(
       `
         INSERT INTO crash_history(
           id,

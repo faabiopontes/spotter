@@ -31,4 +31,9 @@ async function connect() {
   return connection;
 }
 
-module.exports = { connect };
+async function reconnect() {
+  delete global.connection;
+  return connect();
+}
+
+module.exports = { connect, reconnect };

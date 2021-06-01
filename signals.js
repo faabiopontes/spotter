@@ -31,7 +31,7 @@ const signals = {
   },
   getByName: async (name) => {
     const conn = await db.connect();
-    const [rows] = await conn.query(
+    const [rows] = await conn.execute(
       `
       SELECT id, name, win, loss
       FROM signals
@@ -46,7 +46,7 @@ const signals = {
   },
   create: async (name) => {
     const conn = await db.connect();
-    await conn.query(
+    await conn.execute(
       `
         INSERT INTO signals(
           name
@@ -59,7 +59,7 @@ const signals = {
   },
   addResult: async (signalId, result, sequence, crashPoint, winAt) => {
     const conn = await db.connect();
-    await conn.query(
+    await conn.execute(
       `
         INSERT INTO signals_history(
           signal_id,
@@ -78,7 +78,7 @@ const signals = {
       [signalId, result, sequence, crashPoint, winAt]
     );
     const resultField = result === "WIN" ? "win" : "loss";
-    await conn.query(
+    await conn.execute(
       `
         UPDATE signals SET 
         ${resultField}=${resultField}+1
@@ -90,7 +90,7 @@ const signals = {
   },
   getLastResult: async (signalId) => {
     const conn = await db.connect();
-    const [rows] = await conn.query(
+    const [rows] = await conn.execute(
       `
         SELECT
           result,
